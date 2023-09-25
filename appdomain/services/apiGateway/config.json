@@ -1,0 +1,8 @@
+{
+  "users": {
+    "/appdomain/api/users/post": true,
+    "/appdomain/api/users/get": true,
+    "/appdomain/api/users/put": true,
+    "/appdomain/api/users/delete": true
+  }
+}
