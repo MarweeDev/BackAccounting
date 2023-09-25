@@ -15,8 +15,6 @@ app.use("/appdomain/api/", endpointsRoutes.users);
 const sequelize = require('./appdomain/infrastructure/config/db');
 const configSettings = require('./appdomain/infrastructure/config/config.json');
 const envConfig = configSettings[process.env.NODE_ENV || 'development'];
-console.log("Variable: ", process.env);
-
 sequelize.sync().then(() => {
   app.listen(envConfig.port, () => {
     console.log(`Server en el puerto: ${envConfig.port}`);
