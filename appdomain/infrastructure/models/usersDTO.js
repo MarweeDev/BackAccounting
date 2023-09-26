@@ -24,15 +24,14 @@ const UserDto = sequelize.define('usuarios', {
   },
   fecha_creacion: {
     type: DataTypes.DATE,
-    defaultValue: sequelize.literal('CURRENT_TIMESTAMP'),
     allowNull: false,
   },
   fecha_actualizacion: {
-    type: DataTypes.DATE,
+    type: DataTypes.DATE
   },
 }, {
-  tableName: 'usuarios', // Nombre de la tabla en la base de datos
-  timestamps: false, // Para deshabilitar el manejo automático de timestamps (createdAt, updatedAt)
+  tableName: 'usuarios',
+  timestamps: false,
 });
 
 module.exports = UserDto;
