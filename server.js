@@ -10,6 +10,7 @@ app.use(bodyParser.json());
 //Endpoints
 const endpointsRoutes = require('./appdomain/infrastructure/endpoints/endpoints');
 app.use("/appdomain/api/", endpointsRoutes.users);
+app.use("/appdomain/api/", endpointsRoutes.collaborator);
 
 // Sincronizar la base de datos y arrancar el servidor
 const sequelize = require('./appdomain/infrastructure/config/db');

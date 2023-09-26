@@ -1,12 +1,14 @@
 const jwt = require('jsonwebtoken');
 const User = require('../../../infrastructure/models/usersDTO');
 const config = require('../../../infrastructure/config/config.json');
-const usersRepository = require('../Repository/usersRepository');
+const usersRepository = require('../repository/usersRepository');
+const utilitys = require('../../../utility/utilitys');
 
 const env = process.env.NODE_ENV || 'development';
 const envConfig = config[env];
 
 const usersRepository_ = new usersRepository();
+const utilitys_ = new utilitys();
 
 const usersController = {
   
@@ -46,7 +48,7 @@ const usersController = {
         return res.status(400).json({ message: 'El usuario ya existe' });
       }
 
-      const fecha = usersRepository_.getCurrentTimestamp();
+      const fecha = utilitys_.getCurrentTimestamp();
       const newUser = await User.create({
         usuario,
         contraseña,
@@ -74,7 +76,7 @@ const usersController = {
         return res.status(404).json({ message: 'Usuario no encontrado' });
       }
 
-      const fecha = usersRepository_.getCurrentTimestamp();
+      const fecha = utilitys_.getCurrentTimestamp();
       await User.update(
         {
           usuario,
