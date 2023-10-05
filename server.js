@@ -12,6 +12,7 @@ const endpointsRoutes = require('./appdomain/infrastructure/endpoints/endpoints'
 app.use("/appdomain/api/", endpointsRoutes.users);
 app.use("/appdomain/api/", endpointsRoutes.collaborator);
 app.use("/appdomain/api/", endpointsRoutes.status);
+app.use("/appdomain/api/", endpointsRoutes.role);
 
 // Sincronizar la base de datos y arrancar el servidor
 const sequelize = require('./appdomain/infrastructure/config/db');
