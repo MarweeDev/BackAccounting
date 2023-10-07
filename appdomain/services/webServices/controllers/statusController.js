@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const Status = require('../../../infrastructure/models/statusDTO');
+const Status = require('../../../infrastructure/models/shared/statusDTO');
 const config = require('../../../infrastructure/config/config.json');
 const statusRepository = require('../repository/statusRepository');
 

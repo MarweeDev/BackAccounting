@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/db');
+const sequelize = require('../../config/db');
 
-const StatusDto = sequelize.define('estado', {
+const ProductDto = sequelize.define('producto', {
   nombre: {
     type: DataTypes.STRING,
     allowNull: false,
@@ -10,17 +10,17 @@ const StatusDto = sequelize.define('estado', {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  codigogrupo: {
-    type: DataTypes.STRING,
+  precio: {
+    type: DataTypes.NUMBER,
     allowNull: false,
   },
-  estado: {
-    type: DataTypes.STRING,
+  id_estado: {
+    type: DataTypes.INTEGER,
     allowNull: false,
-  }
+  },
 }, {
-  tableName: 'estado',
+  tableName: 'producto',
   timestamps: false,
 });
 
-module.exports = StatusDto; 
+module.exports = ProductDto; 

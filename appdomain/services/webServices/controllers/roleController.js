@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const Role = require('../../../infrastructure/models/roleDTO');
+const Role = require('../../../infrastructure/models/shared/roleDTO');
 const config = require('../../../infrastructure/config/config.json');
 const roleRepository = require('../repository/roleRepository');
 

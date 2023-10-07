@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const User = require('../../../infrastructure/models/usersDTO');
+const User = require('../../../infrastructure/models/source/usersDTO');
 const config = require('../../../infrastructure/config/config.json');
 const usersRepository = require('../repository/usersRepository');
 const utilitys = require('../../../utility/utilitys');
