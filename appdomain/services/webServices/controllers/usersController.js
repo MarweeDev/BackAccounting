@@ -98,7 +98,6 @@ const usersController = {
 
   deleteUser: async (req, res) => {
     const userId = req.params.id;
-    const newEstadoId = req.body.id_estado;
 
     try {
       const user = await User.findOne({ where: { id: userId } });
@@ -109,7 +108,7 @@ const usersController = {
 
       await User.update(
         {
-          id_estado: newEstadoId
+          id_estado: 2
         },
         { where: { id: userId } }
       );

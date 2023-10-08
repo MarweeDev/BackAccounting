@@ -96,7 +96,6 @@ const collaboratorController = {
 
   deleteCollaborator: async (req, res) => {
     const collaboratorId = req.params.id;
-    const newEstadoId = req.body.id_estado;
 
     try {
       const collaborator = await Collaborator.findOne({ where: { id: collaboratorId } });
@@ -107,7 +106,7 @@ const collaboratorController = {
 
       await Collaborator.update(
         {
-          id_estado: newEstadoId
+          id_estado: 2
         },
         { where: { id: collaboratorId } }
       );

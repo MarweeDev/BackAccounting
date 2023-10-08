@@ -70,7 +70,6 @@ const roleController = {
 
   deleteRole: async (req, res) => {
     const Id = req.params.id;
-    const newRole = req.body.id_estado;
 
     try {
       const role = await Role.findOne({ where: { id: Id } });
@@ -81,7 +80,7 @@ const roleController = {
 
       await Role.update(
         {
-          newRole: newRole
+          id_estado: 2
         },
         { where: { id: Id } }
       );

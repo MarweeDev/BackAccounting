@@ -73,7 +73,6 @@ const statusController = {
 
   deleteStatus: async (req, res) => {
     const Id = req.params.id;
-    const newEstado = req.body.estado;
 
     try {
       const status = await Status.findOne({ where: { id: Id } });
@@ -84,7 +83,7 @@ const statusController = {
 
       await Status.update(
         {
-          estado: newEstado
+          estado: "N"
         },
         { where: { id: Id } }
       );

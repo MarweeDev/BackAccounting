@@ -14,6 +14,10 @@ const MesaDto = sequelize.define('mesa', {
         type: DataTypes.INTEGER,
         allowNull: false,
     },
+    estado_mesa: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+    },
     id_estado: {
         type: DataTypes.INTEGER,
         allowNull: false,
