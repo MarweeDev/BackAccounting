@@ -20,6 +20,23 @@ const statusController = {
     }
   },
 
+  getStatusById: async (req, res) => {
+    const { codigogrupo } = req.body;
+
+    try {
+      const result = await Status.findOne({ where: { codigogrupo, estado : "S" } });
+
+      if (!result) {
+        return res.status(404).json({ message: 'mesa no encontrado' });
+      }
+
+      res.json({ result });
+    } catch (error) {
+      console.error('Error al obtener mesa por ID:', error);
+      res.status(500).json({ message: 'Error al obtener mesa por ID' });
+    }
+  },
+
   postStatus: async (req, res) => {
     const { nombre, descripcion, codigogrupo, estado } = req.body;
 
