@@ -10,12 +10,20 @@ const ReserveMesaDto = sequelize.define('reservamesa', {
         type: DataTypes.DATE,
         allowNull: false,
     },
+    hora: {
+        type: DataTypes.TIME,
+        allowNull: false,
+    },
     nombrecliente: {
         type: DataTypes.STRING,
         allowNull: false,
     },
     contactocliente: {
         type: DataTypes.STRING,
+        allowNull: false,
+    },
+    id_estado: {
+        type: DataTypes.INTEGER,
         allowNull: false,
     },
 }, {

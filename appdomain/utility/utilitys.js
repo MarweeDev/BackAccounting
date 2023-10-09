@@ -15,6 +15,20 @@ class utilitys {
         
         return formattedDate;
     }
+
+    getGenerateCodeOrder(count) {
+        if(count == 0){
+            count = 1;
+        }
+
+        const currentDate = new Date();
+        const year = String(currentDate.getFullYear()).slice(-2);
+        const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+        const day = String(currentDate.getDate()).padStart(2, '0');
+        
+        const codigo = `${year}${month}${day}-${count}`;
+        return codigo;
+    }
 }
 
 module.exports = utilitys;

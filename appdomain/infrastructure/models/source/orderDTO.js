@@ -24,7 +24,7 @@ const OrderDto = sequelize.define('orden', {
   },
   id_tipopago: {
     type: DataTypes.INTEGER,
-    allowNull: false,
+    allowNull: true,
   },
 }, {
   tableName: 'orden',
