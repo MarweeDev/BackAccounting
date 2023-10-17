@@ -13,6 +13,8 @@ app.use("/appdomain/api/", endpointsRoutes.users);
 app.use("/appdomain/api/", endpointsRoutes.collaborator);
 app.use("/appdomain/api/", endpointsRoutes.status);
 app.use("/appdomain/api/", endpointsRoutes.role);
+app.use("/appdomain/api/", endpointsRoutes.module);
+app.use("/appdomain/api/", endpointsRoutes.component);
 
 // Sincronizar la base de datos y arrancar el servidor
 const sequelize = require('./appdomain/infrastructure/config/db');
