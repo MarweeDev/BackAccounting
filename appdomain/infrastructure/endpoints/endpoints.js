@@ -1,9 +1,9 @@
 //source
 const usersRoutes = require('./usersEndPoint');
 const collaboratorRoutes = require('./collaboratorEndPoint');
-const collaboratorRoutes = require('./collaboratorEndPoint');
 const moduleRoutes = require('./moduleEndPoint');
 const componentRoutes = require('./componentEndPoint');
+const mesaRoutes = require('./mesaEndPoint');
 
 //shared
 const statusRoutes = require('./statusEndPoint');
@@ -15,5 +15,6 @@ module.exports = {
   status: statusRoutes,
   role: roleRoutes,
   module: moduleRoutes,
-  component: componentRoutes
+  component: componentRoutes,
+  mesa: mesaRoutes
 };

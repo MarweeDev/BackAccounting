@@ -2,6 +2,13 @@
 require('dotenv').config();
 const express = require('express');
 const app = express();
+const cors = require('cors');  // Importa el módulo cors
+
+// Configuración de CORS (permite todas las solicitudes desde cualquier origen)
+const corsOptions = {
+  origin: 'http://localhost:4200',
+};
+app.use(cors(corsOptions));
 
 // Middlewares
 const bodyParser = require('body-parser');
@@ -15,6 +22,7 @@ app.use("/appdomain/api/", endpointsRoutes.status);
 app.use("/appdomain/api/", endpointsRoutes.role);
 app.use("/appdomain/api/", endpointsRoutes.module);
 app.use("/appdomain/api/", endpointsRoutes.component);
+app.use("/appdomain/api/", endpointsRoutes.mesa);
 
 // Sincronizar la base de datos y arrancar el servidor
 const sequelize = require('./appdomain/infrastructure/config/db');
