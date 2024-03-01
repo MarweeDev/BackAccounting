@@ -2,7 +2,7 @@ const Category = require('../../../infrastructure/models/shared/productCategoryD
 
 const productCategoryController = {
   
-  getCategory: async (req, res) => {
+  get: async (req, res) => {
     try {
       const category = await Category.findAll({where: {id_estado : 1}});
       res.json({ category });
@@ -12,7 +12,24 @@ const productCategoryController = {
     }
   },
 
-  postCategory: async (req, res) => {
+  getById: async (req, res) => {
+    const Id = req.params.id;
+
+    try {
+      const category = await Category.findOne({ where: { id: Id } });
+
+      if (!category) {
+        return res.status(404).json({ message: 'category no encontrado' });
+      }
+
+      res.json({ product });
+    } catch (error) {
+      console.error('Error al obtener category por ID:', error);
+      res.status(500).json({ message: 'Error al obtener category por ID' });
+    }
+  },
+
+  post: async (req, res) => {
     const { nombre, descripcion } = req.body;
 
     try {
@@ -34,7 +51,7 @@ const productCategoryController = {
     }
   },
 
-  updateCategory: async (req, res) => {
+  update: async (req, res) => {
     const Id = req.params.id;
     const { nombre, descripcion } = req.body;
 
@@ -60,7 +77,7 @@ const productCategoryController = {
     }
   },
 
-  deleteCategory: async (req, res) => {
+  delete: async (req, res) => {
     const Id = req.params.id;
 
     try {

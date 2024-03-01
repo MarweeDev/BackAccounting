@@ -6,7 +6,7 @@ const orderController = {
   
   get: async (req, res) => {
     try {
-      const result = await ModelDTO.findAll({where: {id_estado : 7}});
+      const result = await ModelDTO.findAll({where: {id_estadoorden : 7}});
       res.json({ result });
     } catch (error) {
       console.error('Error al obtener orden:', error);
@@ -31,29 +31,90 @@ const orderController = {
     }
   },
 
-  post: async (req, res) => {
-    const { id_mesa, id_usuario } = req.body;
+  getCodeOrder: async (req, res) =>{
+    try {
+      const existingOrders = await ModelDTO.findAll({
+        attributes: ['codigo'],
+        group: ['codigo']
+      });
+      let generateCodigo = utilitys_.getGenerateCodeOrder(existingOrders.length);
+
+      const existing = await ModelDTO.findOne({ where: { codigo : generateCodigo } });
+      if (existing) {
+        return res.json({message: "Código orden", status: generateCodigo + "r"});
+      }
+      else {
+        return res.json({message: "Código orden", status: generateCodigo});
+      }
+    } catch (error) {
+      console.error('Error al obtener orden:', error);
+      res.status(500).json({ message: 'Error al obtener orden', status : error });
+    }
+  },
+
+  /*post: async (req, res) => {
+    const { codigo, id_mesa, id_usuario, id_tipopago, id_producto, cantidad } = req.body;
 
     try {
-    const existing = await ModelDTO.findOne({ where: { id_mesa, id_estadoorden : 7 } });
+      const existing = await ModelDTO.findOne({ where: { id_mesa, id_estadoorden : 7 } });
       if (existing) {
         return res.status(400).json({ message: 'Orden ya existe' });
       }
 
       const fecha = utilitys_.getCurrentTimestamp();
-      const codigo = utilitys_.getGenerateCodeOrder(await ModelDTO.findAndCountAll().count);
       const result = await ModelDTO.create({
-        codigo : codigo,
+        codigo,
         id_mesa,
         id_usuario,
         fecha : fecha,
-        id_estadoorden : 7
+        id_estadoorden : 7,
+        id_tipopago,
+        id_producto,
+        cantidad
       });
 
       res.json({ message: 'Orden registrado exitosamente', status: result });
     } catch (error) {
       console.error('Error al registrar orden:', error);
       res.status(500).json({ message: 'Error al registrar orden' });
+    }
+  },*/
+
+  post: async (req, res) => {
+    const ordersList = req.body; // Cambio para obtener la lista de órdenes
+
+    try {
+      // Verificar si alguna orden ya existe en la base de datos
+      const existingOrders = await Promise.all(ordersList.map(async (order) => {
+        const existing = await ModelDTO.findOne({ where: { id_mesa: order.id_mesa, id_estadoorden: 7 } });
+        return existing;
+      }));
+
+      if (existingOrders.some(order => order)) {
+        return res.status(400).json({ message: 'Al menos una orden ya existe' });
+      }
+
+      const fecha = utilitys_.getCurrentTimestamp();
+
+      // Crear todas las órdenes en la lista
+      const createdOrders = await Promise.all(ordersList.map(async (order) => {
+        const result = await ModelDTO.create({
+          codigo: order.codigo,
+          id_mesa: order.id_mesa,
+          id_usuario: order.id_usuario,
+          fecha: fecha,
+          id_estadoorden: order.id_estadoorden,
+          id_tipopago: order.id_tipopago,
+          id_producto: parseInt(order.id_producto),
+          cantidad: order.cantidad
+        });
+        return result;
+      }));
+
+      res.json({ message: 'Órdenes registradas exitosamente', status: createdOrders });
+    } catch (error) {
+      console.error('Error al registrar órdenes:', error);
+      res.status(500).json({ message: 'Error al registrar órdenes' });
     }
   },
 

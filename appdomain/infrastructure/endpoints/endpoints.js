@@ -4,10 +4,13 @@ const collaboratorRoutes = require('./collaboratorEndPoint');
 const moduleRoutes = require('./moduleEndPoint');
 const componentRoutes = require('./componentEndPoint');
 const mesaRoutes = require('./mesaEndPoint');
+const productRoutes = require('./productEndPoint');
+const orderRoutes = require('./orderEndPoint');
 
 //shared
 const statusRoutes = require('./statusEndPoint');
 const roleRoutes = require('./roleEndPoint');
+const categoryRoutes = require('./productCategoryEndPoint');
 
 module.exports = {
   users: usersRoutes,
@@ -16,5 +19,8 @@ module.exports = {
   role: roleRoutes,
   module: moduleRoutes,
   component: componentRoutes,
-  mesa: mesaRoutes
+  mesa: mesaRoutes,
+  product: productRoutes,
+  category: categoryRoutes,
+  order: orderRoutes
 };

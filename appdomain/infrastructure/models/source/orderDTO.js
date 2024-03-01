@@ -1,9 +1,10 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../../config/db');
+const MesaDTO = require('./mesaDTO');
 
 const OrderDto = sequelize.define('orden', {
   codigo: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.STRING,
     allowNull: false,
   },
   id_mesa: {
@@ -26,9 +27,21 @@ const OrderDto = sequelize.define('orden', {
     type: DataTypes.INTEGER,
     allowNull: true,
   },
+  id_producto: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  cantidad: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  }
 }, {
   tableName: 'orden',
   timestamps: false,
 });
+
+// Definición de la asociación
+OrderDto.belongsTo(MesaDTO, { foreignKey: 'id_mesa' });
+MesaDTO.hasMany(OrderDto, { foreignKey: 'id_mesa' });
 
 module.exports = OrderDto; 

@@ -1,10 +1,14 @@
 const Mesa = require('../../../infrastructure/models/source/mesaDTO');
+const Order = require('../../../infrastructure/models/source/orderDTO');
+const { Op } = require('sequelize');
 
 const mesaController = {
   
+  //4:Disponible - 5:Reservadas - 6:Descartadas
   getMesa: async (req, res) => {
+    const estadoMesaId = req.params.id;
     try {
-      const result = await Mesa.findAll({where: {id_estado : 1}});
+      const result = await Mesa.findAll({where: {id_estado : 1, estado_mesa : estadoMesaId}});
       res.json({ result });
     } catch (error) {
       console.error('Error al obtener mesa:', error);
@@ -30,6 +34,7 @@ const mesaController = {
   },
 
   postMesa: async (req, res) => {
+    debugger;
     const { numero, nombre, capacidad } = req.body;
 
     try {

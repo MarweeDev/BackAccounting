@@ -8,10 +8,14 @@ const ProductDto = sequelize.define('producto', {
   },
   descripcion: {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: true,
   },
   precio: {
     type: DataTypes.NUMBER,
+    allowNull: false,
+  },
+  id_categoria: {
+    type: DataTypes.INTEGER,
     allowNull: false,
   },
   id_estado: {
