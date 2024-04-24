@@ -5,6 +5,8 @@ const Controller = require('../../services/webServices/controllers/mesaControlle
 // Endpoint para registrar un mesa
 EndPoint.post('/mesa/post', Controller.mesaController.postMesa);
 // Endpoint para consultar todos los mesa
+EndPoint.get('/mesa/get', Controller.mesaController.get);
+// Endpoint para consultar todos los mesa
 EndPoint.get('/mesa/get/global/:id', Controller.mesaController.getMesa);
 // Endpoint para consultar un mesa
 EndPoint.get('/mesa/get/:id', Controller.mesaController.getMesaById);

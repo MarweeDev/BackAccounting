@@ -1,8 +1,25 @@
 const Mesa = require('../../../infrastructure/models/source/mesaDTO');
-const Order = require('../../../infrastructure/models/source/orderDTO');
-const { Op } = require('sequelize');
+const runQuery = require('../../../infrastructure/config/poolbase');
+const Constants = require('../../../infrastructure/resources/ConstantsQuery');
 
 const mesaController = {
+
+  get: async (req, res) => {
+    try {
+      //const { rows } = await dbServiceQuery.query(Constants.ServicesMethod.GetMesaKeyOrder, [estadoMesaId]);
+      const rows = await runQuery(Constants.ServicesMethod.GetMesaKeyOrder);
+      console.log('Rows result: ', rows)
+      // Verificar si hay resultados
+      if (rows.length == 0) {
+        return res.status(400).json({ message: 'Todas están en uso por alguna orden activa' });
+      }
+
+      res.json({ result: rows });
+    } catch (error) {
+      console.error('Error al obtener mesa:', error);
+      res.status(500).json({ message: 'Error al obtener mesa' });
+    }
+  },
   
   //4:Disponible - 5:Reservadas - 6:Descartadas
   getMesa: async (req, res) => {
@@ -34,7 +51,6 @@ const mesaController = {
   },
 
   postMesa: async (req, res) => {
-    debugger;
     const { numero, nombre, capacidad } = req.body;
 
     try {

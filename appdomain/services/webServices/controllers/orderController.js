@@ -1,4 +1,6 @@
 const ModelDTO = require('../../../infrastructure/models/source/orderDTO');
+const runQuery = require('../../../infrastructure/config/poolbase');
+const Constants = require('../../../infrastructure/resources/ConstantsQuery');
 const utilitys = require('../../../utility/utilitys');
 const utilitys_ = new utilitys();
 
@@ -14,17 +16,34 @@ const orderController = {
     }
   },
 
-  getById: async (req, res) => {
-    const Id = req.params.id;
-
+  getAll: async (req, res) => {
     try {
-      const result = await ModelDTO.findOne({ where: { id: Id } });
-
-      if (!result) {
-        return res.status(404).json({ message: 'Orden no encontrado' });
+      const rows = await runQuery(Constants.ServicesMethod.GetOrderAll);
+      console.log('Rows result: ', rows)
+      // Verificar si hay resultados
+      if (rows.length == 0) {
+        return res.status(400).json({ message: 'Todas están en uso por alguna orden activa' });
       }
 
-      res.json({ result });
+      res.json({ result: rows });
+    } catch (error) {
+      console.error('Error al obtener orden:', error);
+      res.status(500).json({ message: 'Error al obtener orden' });
+    }
+  },
+
+  getById: async (req, res) => {
+    const codigo = req.params.id;
+
+    try {
+      const rows = await runQuery(Constants.ServicesMethod.GetOrderID, [codigo.toString()]);
+      console.log('Rows result: ', rows)
+      // Verificar si hay resultados
+      if (rows.length == 0) {
+        return res.status(400).json({ message: 'No se encontro ninguna relación de orden' });
+      }
+
+      res.json({ result: rows });
     } catch (error) {
       console.error('Error al obtener orden por ID:', error);
       res.status(500).json({ message: 'Error al obtener orden por ID' });
@@ -86,8 +105,14 @@ const orderController = {
     try {
       // Verificar si alguna orden ya existe en la base de datos
       const existingOrders = await Promise.all(ordersList.map(async (order) => {
-        const existing = await ModelDTO.findOne({ where: { id_mesa: order.id_mesa, id_estadoorden: 7 } });
-        return existing;
+        if (order.id_mesa != 0) {
+          const existing = await ModelDTO.findOne({ where: { id_mesa: order.id_mesa, id_estadoorden: 7 } });
+          return existing;
+        }
+        else{
+          const existing = await ModelDTO.findOne({ where: { id_mesa: order.id_mesa } });
+          return existing;
+        }
       }));
 
       if (existingOrders.some(order => order)) {
@@ -98,6 +123,10 @@ const orderController = {
 
       // Crear todas las órdenes en la lista
       const createdOrders = await Promise.all(ordersList.map(async (order) => {
+        if(order.id_mesa == 0){
+          order.id_mesa = 1;
+        }
+
         const result = await ModelDTO.create({
           codigo: order.codigo,
           id_mesa: order.id_mesa,
