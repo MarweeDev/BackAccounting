@@ -9,6 +9,8 @@ EndPoint.get('/order/get', Controller.orderController.get);
 // Endpoint para consultar todos los mesa
 EndPoint.get('/order/getAll', Controller.orderController.getAll);
 // Endpoint para consultar todos los mesa
+EndPoint.get('/order/getFind', Controller.orderController.getFind);
+// Endpoint para consultar todos los mesa
 EndPoint.get('/order/get/generateCodeOrder', Controller.orderController.getCodeOrder);
 // Endpoint para consultar un mesa
 EndPoint.get('/order/get/:id', Controller.orderController.getById);

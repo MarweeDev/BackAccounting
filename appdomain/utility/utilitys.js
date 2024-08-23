@@ -16,7 +16,7 @@ class utilitys {
         return formattedDate;
     }
 
-    getGenerateCodeOrder(codeLength) {
+    getGenerateCodeOrder(codeCompany, codeLength) {
         console.log("contar: ", codeLength)
         const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
         const numbers = "0123456789";
@@ -32,7 +32,7 @@ class utilitys {
             randomCodeInt += numbers.charAt(randomIndex);
         }
 
-        return randomCodeChar + randomCodeInt + "-" + codeLength;
+        return codeCompany + "-" + randomCodeChar + randomCodeInt + "-" + codeLength;
     }
 }
 

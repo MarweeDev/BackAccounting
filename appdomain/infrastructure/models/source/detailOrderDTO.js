@@ -2,8 +2,8 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../../config/db');
 
 const DetailOrderDto = sequelize.define('detalleorden', {
-  id_orden: {
-    type: DataTypes.INTEGER,
+  codigo_orden: {
+    type: DataTypes.STRING,
     allowNull: false,
   },
   id_producto: {

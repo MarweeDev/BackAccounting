@@ -29,13 +29,35 @@ class Constants {
         od.codigo,
         es.nombre,
         us.usuario,
+		    cl.nombre as cliente,
         TO_CHAR(od.fecha, 'DD-MM-YYYY HH24:MI:SS') AS fecha
       FROM 
         orden od
         inner join estado es on od.id_estadoorden = es.id
         inner join usuarios us on od.id_usuario = us.id
-      group by od.codigo, es.nombre, us.usuario, od.fecha
+		    inner join cliente cl on od.id_client = cl.id
+      group by od.codigo, es.nombre, us.usuario, cl.nombre, od.fecha
       order by od.fecha desc;
+      `,
+      GetOrderFind:
+      `
+      SELECT
+		    (select sum(cantidad) from detalleorden where codigo_orden = od.codigo) as cantidad,
+        od.codigo,
+        es.nombre,
+        us.usuario,
+        cl.nombre as cliente,
+        TO_CHAR(od.fecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha
+      FROM 
+        orden od
+        inner join estado es on od.id_estadoorden = es.id
+        inner join usuarios us on od.id_usuario = us.id
+        inner join cliente cl on od.id_client = cl.id
+      WHERE
+        od.id_estadoorden = ? AND
+        TO_CHAR(od.fecha_creacion, 'YYYY-MM-DD') BETWEEN ? AND TO_CHAR(CURRENT_DATE, 'YYYY-MM-DD')
+      group by od.codigo, es.nombre, us.usuario, cl.nombre, od.fecha_creacion
+      order by od.fecha_creacion desc;
       `,
       GetOrderID: 
       `
@@ -45,16 +67,19 @@ class Constants {
         us.usuario,
         pr.nombre as producto,
         pr.precio,
-        od.cantidad,
+        odd.cantidad,
         cp.nombre as categoria,
-        TO_CHAR(od.fecha, 'DD-MM-YYYY HH24:MI:SS') AS fecha
+        cl.nombre as cliente,
+        TO_CHAR(od.fecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha
       FROM 
         orden od
         inner join estado es on od.id_estadoorden = es.id
         inner join usuarios us on od.id_usuario = us.id
-        inner join producto pr on od.id_producto = pr.id
+		    inner join cliente cl on od.id_client = cl.id
+		    inner join detalleorden odd on od.codigo = odd.codigo_orden
+        inner join producto pr on odd.id_producto = pr.id
         inner join categoriaproducto cp on pr.id_categoria = cp.id
-      where od.codigo = ? order by od.fecha desc;
+      where od.codigo = ? order by od.fecha_creacion desc;
       `,
     };
   }

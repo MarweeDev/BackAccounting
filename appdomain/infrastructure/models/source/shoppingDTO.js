@@ -1,38 +1,31 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../../config/db');
+//const MesaDTO = require('./mesaDTO');
 
-const OrderDto = sequelize.define('orden', {
+const ShoppingDto = sequelize.define('compras', {
   codigo: {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  id_usuario: {
+  total_compra: {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
-  id_client: {
+  id_proveedor: {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
-  id_tipopago: {
-    type: DataTypes.INTEGER,
-    allowNull: true,
-  },
-  id_subtipopago: {
+  id_estado: {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
   fecha_creacion: {
     type: DataTypes.DATE,
     allowNull: false,
-  },
-  id_estadoorden: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
   }
 }, {
-  tableName: 'orden',
+  tableName: 'compras',
   timestamps: false,
 });
 
-module.exports = OrderDto; 
+module.exports = ShoppingDto; 

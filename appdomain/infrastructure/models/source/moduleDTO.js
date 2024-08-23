@@ -25,6 +25,14 @@ const ModuleDto = sequelize.define('modulo', {
   fecha_actualizacion: {
     type: DataTypes.DATE
   },
+  icono:{
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  position_module: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+  },
 }, {
   tableName: 'modulo',
   timestamps: false,

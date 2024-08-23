@@ -7,7 +7,7 @@ const moduleController = {
   
   getModule: async (req, res) => {
     try {
-      const module = await Module.findAll({where: {id_estado : 1}});
+      const module = await Module.findAll({where: {id_estado : 1}, order: [['position_module', 'ASC']]});
       res.json({ module });
     } catch (error) {
       console.error('Error al obtener modulo:', error);

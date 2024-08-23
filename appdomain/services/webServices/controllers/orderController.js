@@ -1,4 +1,5 @@
 const ModelDTO = require('../../../infrastructure/models/source/orderDTO');
+const ModelDetailDTO = require('../../../infrastructure/models/source/DetailOrderDto');
 const runQuery = require('../../../infrastructure/config/poolbase');
 const Constants = require('../../../infrastructure/resources/ConstantsQuery');
 const utilitys = require('../../../utility/utilitys');
@@ -32,6 +33,24 @@ const orderController = {
     }
   },
 
+  getFind: async (req, res) => {
+    const { id_estadoorden, fecha_creacion } = req.query;
+
+    try {
+      const rows = await runQuery(Constants.ServicesMethod.GetOrderFind, [Number.parseInt(id_estadoorden), fecha_creacion]);
+      console.log('Rows result: ', rows)
+      // Verificar si hay resultados
+      if (rows.length == 0) {
+        return res.status(200).json({ message: 'No se encontro ninguna relación de orden' });
+      }
+
+      res.json({ result: rows });
+    } catch (error) {
+      console.error('Error al obtener orden por ID:', error);
+      res.status(500).json({ message: 'Error al obtener orden por ID' });
+    }
+  },
+
   getById: async (req, res) => {
     const codigo = req.params.id;
 
@@ -54,9 +73,11 @@ const orderController = {
     try {
       const existingOrders = await ModelDTO.findAll({
         attributes: ['codigo'],
-        group: ['codigo']
+        group: ['codigo'],
+        logging: console.log
       });
-      let generateCodigo = utilitys_.getGenerateCodeOrder(existingOrders.length);
+
+      let generateCodigo = utilitys_.getGenerateCodeOrder("FA", existingOrders.length);
 
       const existing = await ModelDTO.findOne({ where: { codigo : generateCodigo } });
       if (existing) {
@@ -71,40 +92,12 @@ const orderController = {
     }
   },
 
-  /*post: async (req, res) => {
-    const { codigo, id_mesa, id_usuario, id_tipopago, id_producto, cantidad } = req.body;
-
-    try {
-      const existing = await ModelDTO.findOne({ where: { id_mesa, id_estadoorden : 7 } });
-      if (existing) {
-        return res.status(400).json({ message: 'Orden ya existe' });
-      }
-
-      const fecha = utilitys_.getCurrentTimestamp();
-      const result = await ModelDTO.create({
-        codigo,
-        id_mesa,
-        id_usuario,
-        fecha : fecha,
-        id_estadoorden : 7,
-        id_tipopago,
-        id_producto,
-        cantidad
-      });
-
-      res.json({ message: 'Orden registrado exitosamente', status: result });
-    } catch (error) {
-      console.error('Error al registrar orden:', error);
-      res.status(500).json({ message: 'Error al registrar orden' });
-    }
-  },*/
-
   post: async (req, res) => {
     const ordersList = req.body; // Cambio para obtener la lista de órdenes
 
     try {
       // Verificar si alguna orden ya existe en la base de datos
-      const existingOrders = await Promise.all(ordersList.map(async (order) => {
+      /*const existingOrders = await Promise.all(ordersList.map(async (order) => {
         if (order.id_mesa != 0) {
           const existing = await ModelDTO.findOne({ where: { id_mesa: order.id_mesa, id_estadoorden: 7 } });
           return existing;
@@ -117,26 +110,23 @@ const orderController = {
 
       if (existingOrders.some(order => order)) {
         return res.status(400).json({ message: 'Al menos una orden ya existe' });
-      }
+      }*/
 
       const fecha = utilitys_.getCurrentTimestamp();
 
+      const resultOrder = await ModelDTO.create({
+        codigo: ordersList[0].codigo,
+        id_usuario: ordersList[0].id_usuario,
+        id_client: ordersList[0].id_client,
+        id_tipopago: ordersList[0].id_tipopago,
+        id_subtipopago: ordersList[0].id_subtipopago,
+        fecha_creacion: fecha,
+        id_estadoorden: ordersList[0].id_estadoorden
+      });
+
       // Crear todas las órdenes en la lista
       const createdOrders = await Promise.all(ordersList.map(async (order) => {
-        if(order.id_mesa == 0){
-          order.id_mesa = 1;
-        }
-
-        const result = await ModelDTO.create({
-          codigo: order.codigo,
-          id_mesa: order.id_mesa,
-          id_usuario: order.id_usuario,
-          fecha: fecha,
-          id_estadoorden: order.id_estadoorden,
-          id_tipopago: order.id_tipopago,
-          id_producto: parseInt(order.id_producto),
-          cantidad: order.cantidad
-        });
+        const result = await ModelDetailDTO.create(order.detalle);
         return result;
       }));
 
