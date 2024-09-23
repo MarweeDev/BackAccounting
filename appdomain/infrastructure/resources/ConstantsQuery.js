@@ -43,6 +43,7 @@ class Constants {
       `
       SELECT
 		    (select sum(cantidad) from detalleorden where codigo_orden = od.codigo) as cantidad,
+        sum(pr.precio * odd.cantidad) as total,
         od.codigo,
         es.nombre,
         us.usuario,
@@ -53,8 +54,10 @@ class Constants {
         inner join estado es on od.id_estadoorden = es.id
         inner join usuarios us on od.id_usuario = us.id
         inner join cliente cl on od.id_client = cl.id
+        inner join detalleorden odd on od.codigo = odd.codigo_orden
+        inner join producto pr on odd.id_producto = pr.id
       WHERE
-        od.id_estadoorden = ? AND
+        (od.id_estadoorden = ? OR ? = 0) AND
         TO_CHAR(od.fecha_creacion, 'YYYY-MM-DD') BETWEEN ? AND TO_CHAR(CURRENT_DATE, 'YYYY-MM-DD')
       group by od.codigo, es.nombre, us.usuario, cl.nombre, od.fecha_creacion
       order by od.fecha_creacion desc;

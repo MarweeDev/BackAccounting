@@ -37,7 +37,7 @@ const orderController = {
     const { id_estadoorden, fecha_creacion } = req.query;
 
     try {
-      const rows = await runQuery(Constants.ServicesMethod.GetOrderFind, [Number.parseInt(id_estadoorden), fecha_creacion]);
+      const rows = await runQuery(Constants.ServicesMethod.GetOrderFind, [Number.parseInt(id_estadoorden), Number.parseInt(id_estadoorden), fecha_creacion]);
       console.log('Rows result: ', rows)
       // Verificar si hay resultados
       if (rows.length == 0) {
@@ -163,24 +163,38 @@ const orderController = {
   },
 
   updatePay: async (req, res) => {
-    const Id = req.params.id;
-    const { id_tipopago } = req.body;
+    const { codigo, id_tipopago, id_subtipopago } = req.body;
 
     try {
-      const result = await ModelDTO.findOne({ where: { id: Id } });
+      // Validación de entrada
+      if (!codigo || !id_tipopago || id_subtipopago === undefined) {
+        return res.status(400).json({ message: 'Datos incompletos' });
+      }
+
+      const result = await ModelDTO.findOne({ where: { codigo: codigo } });
 
       if (!result) {
-        return res.status(404).json({ message: 'Orden no encontrado' });
+        return res.status(404).json({ message: 'Orden no encontrada' });
+      }
+
+      let status = 8; //Pagada
+      if (id_tipopago == 5){
+        status = 10; //Debiendo
+      }
+      if (id_tipopago == 1) {
+        status = 9; //Cancelada
       }
 
       await ModelDTO.update(
         {
-            id_tipopago
+            id_tipopago : id_tipopago,
+            id_subtipopago : id_subtipopago,
+            id_estadoorden : status
         },
-        { where: { id: Id } }
+        { where: { codigo: codigo } }
       );
 
-      res.json({ message: 'Orden actualizado exitosamente' });
+      res.json({ message: 'Orden actualizada en su estado exitosamente' });
     } catch (error) {
       console.error('Error al actualizar orden', error);
       res.status(500).json({ message: 'Error al actualizar orden' });

@@ -11,6 +11,7 @@ const orderRoutes = require('./orderEndPoint');
 const statusRoutes = require('./statusEndPoint');
 const roleRoutes = require('./roleEndPoint');
 const categoryRoutes = require('./productCategoryEndPoint');
+const typepayRoutes = require('./typePayEndPoint');
 
 module.exports = {
   users: usersRoutes,
@@ -22,5 +23,6 @@ module.exports = {
   mesa: mesaRoutes,
   product: productRoutes,
   category: categoryRoutes,
-  order: orderRoutes
+  order: orderRoutes,
+  typepay: typepayRoutes
 };

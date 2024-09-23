@@ -26,6 +26,7 @@ app.use("/appdomain/api/", endpointsRoutes.mesa);
 app.use("/appdomain/api/", endpointsRoutes.product);
 app.use("/appdomain/api/", endpointsRoutes.category);
 app.use("/appdomain/api/", endpointsRoutes.order);
+app.use("/appdomain/api/", endpointsRoutes.typepay);
 
 // Sincronizar la base de datos y arrancar el servidor
 const sequelize = require('./appdomain/infrastructure/config/db');
