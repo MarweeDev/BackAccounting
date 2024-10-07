@@ -69,6 +69,25 @@ const orderController = {
     }
   },
 
+  getFindExport: async (req, res) => {
+    const { fecha_init, fecha_fin } = req.query;
+
+    try {
+      console.log('parameters: ', fecha_init,fecha_fin)
+      const rows = await runQuery(Constants.ServicesMethod.GetOrderFindExport, [fecha_init, fecha_fin]);
+      console.log('Rows result: ', rows)
+      // Verificar si hay resultados
+      if (rows.length == 0) {
+        return res.status(200).json({ message: 'No se encontro ninguna relación de orden' });
+      }
+
+      res.json({ result: rows });
+    } catch (error) {
+      console.error('Error al obtener orden por ID:', error);
+      res.status(500).json({ message: 'Error al obtener orden por ID' });
+    }
+  },
+
   getCodeOrder: async (req, res) =>{
     try {
       const existingOrders = await ModelDTO.findAll({

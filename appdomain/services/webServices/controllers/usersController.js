@@ -3,6 +3,8 @@ const User = require('../../../infrastructure/models/source/usersDTO');
 const config = require('../../../infrastructure/config/config.json');
 const usersRepository = require('../repository/usersRepository');
 const utilitys = require('../../../utility/utilitys');
+const Constants = require('../../../infrastructure/resources/ConstantsQuery');
+const runQuery = require('../../../infrastructure/config/poolbase');
 
 const env = process.env.NODE_ENV || 'development';
 const envConfig = config[env];
@@ -36,6 +38,42 @@ const usersController = {
     } catch (error) {
       console.error('Error al obtener usuario por ID:', error);
       res.status(500).json({ message: 'Error al obtener usuario por ID' });
+    }
+  },
+
+  getLogin: async (req, res) => {
+    const { email, pass } = req.query;
+
+    try {
+      const rows = await runQuery(Constants.ServicesMethod.GetLogin, [email, email, pass]);
+      console.log('Rows result: ', rows)
+      // Verificar si hay resultados
+      if (rows.length == 0) {
+        return res.status(200).json({ message: 'No se encontro ningun usuario con las credenciales' });
+      }
+
+      res.json({ result: rows });
+    } catch (error) {
+      console.error('Error al obtener usuario:', error);
+      res.status(500).json({ message: 'Error al obtener usuario' });
+    }
+  },
+
+  getInfoUser: async (req, res) => {
+    const { token } = req.query;
+
+    try {
+      const rows = await runQuery(Constants.ServicesMethod.GetInfoUser, [token]);
+      console.log('Rows result: ', rows)
+      // Verificar si hay resultados
+      if (rows.length == 0) {
+        return res.status(200).json({ message: 'No se encontro ninguna información del usuario' });
+      }
+
+      res.json({ result: rows });
+    } catch (error) {
+      console.error('Error al obtener información del usuario:', error);
+      res.status(500).json({ message: 'Error al obtener información del usuario' });
     }
   },
 
