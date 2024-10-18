@@ -1,7 +1,6 @@
 const path = require('path');
-//const ModelDTO = require('../../../infrastructure/models/source/orderDTO');
 const ModelDTO = require(path.join(__dirname, '../../../infrastructure/models/source/orderDTO'));
-const ModelDetailDTO = require('../../../infrastructure/models/source/DetailOrderDto');
+const ModelDetailDTO = require(path.join(__dirname, '../../../infrastructure/models/source/DetailOrderDto'));
 const runQuery = require('../../../infrastructure/config/poolbase');
 const Constants = require('../../../infrastructure/resources/ConstantsQuery');
 const utilitys = require('../../../utility/utilitys');
