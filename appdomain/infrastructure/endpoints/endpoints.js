@@ -6,6 +6,7 @@ const componentRoutes = require('./componentEndPoint');
 const mesaRoutes = require('./mesaEndPoint');
 const productRoutes = require('./productEndPoint');
 const orderRoutes = require('./orderEndPoint');
+const clientRoutes = require('./clientEndPoint');
 
 //shared
 const statusRoutes = require('./statusEndPoint');
@@ -24,5 +25,6 @@ module.exports = {
   product: productRoutes,
   category: categoryRoutes,
   order: orderRoutes,
-  typepay: typepayRoutes
+  typepay: typepayRoutes,
+  client: clientRoutes
 };

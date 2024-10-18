@@ -49,7 +49,7 @@ const usersController = {
       console.log('Rows result: ', rows)
       // Verificar si hay resultados
       if (rows.length == 0) {
-        return res.status(200).json({ message: 'No se encontro ningun usuario con las credenciales' });
+        return res.status(200).json({ message: 'No se encontro ningun usuario con las credenciales', status: 204 });
       }
 
       res.json({ result: rows });
