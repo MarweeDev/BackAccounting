@@ -1,12 +1,9 @@
 const jwt = require('jsonwebtoken');
 const Role = require('../../../infrastructure/models/shared/roleDTO');
 const config = require('../../../infrastructure/config/config.json');
-const roleRepository = require('../repository/roleRepository');
 
 const env = process.env.NODE_ENV || 'development';
 const envConfig = config[env];
-
-const roleRepository_ = new roleRepository();
 
 const roleController = {
   
