@@ -1,12 +1,9 @@
 const jwt = require('jsonwebtoken');
 const Status = require('../../../infrastructure/models/shared/statusDTO');
 const config = require('../../../infrastructure/config/config.json');
-const statusRepository = require('../repository/statusRepository');
 
 const env = process.env.NODE_ENV || 'development';
 const envConfig = config[env];
-
-const statusRepository_ = new statusRepository();
 
 const statusController = {
   

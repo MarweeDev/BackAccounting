@@ -1,13 +1,11 @@
 const jwt = require('jsonwebtoken');
 const Collaborator = require('../../../infrastructure/models/source/collaboratorDTO');
 const config = require('../../../infrastructure/config/config.json');
-const collaboratorRepository = require('../repository/collaboratorRepository');
 const utilitys = require('../../../utility/utilitys');
 
 const env = process.env.NODE_ENV || 'development';
 const envConfig = config[env];
 
-const collaboratorRepository_ = new collaboratorRepository();
 const utilitys_ = new utilitys();
 
 const collaboratorController = {

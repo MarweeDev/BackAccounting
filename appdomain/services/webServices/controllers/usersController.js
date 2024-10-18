@@ -1,7 +1,6 @@
 const jwt = require('jsonwebtoken');
 const User = require('../../../infrastructure/models/source/usersDTO');
 const config = require('../../../infrastructure/config/config.json');
-const usersRepository = require('../repository/usersRepository');
 const utilitys = require('../../../utility/utilitys');
 const Constants = require('../../../infrastructure/resources/ConstantsQuery');
 const runQuery = require('../../../infrastructure/config/poolbase');
@@ -9,7 +8,6 @@ const runQuery = require('../../../infrastructure/config/poolbase');
 const env = process.env.NODE_ENV || 'development';
 const envConfig = config[env];
 
-const usersRepository_ = new usersRepository();
 const utilitys_ = new utilitys();
 
 const usersController = {
