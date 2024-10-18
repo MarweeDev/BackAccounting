@@ -1,5 +1,6 @@
 const path = require('path');
-console.log("path ruta:", path.join(__dirname, '../../../infrastructure/models/source/orderDTO'))
+console.log("path ruta:", path.join(__dirname, '../../infrastructure/models/source/orderDTO'))
+console.log("path ruta:", '../../../infrastructure/models/source/orderDTO')
 const ModelDTO = require('../../../infrastructure/models/source/orderDTO');
 const ModelDetailDTO = require('../../../infrastructure/models/source/DetailOrderDto');
 const runQuery = require('../../../infrastructure/config/poolbase');
