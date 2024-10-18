@@ -1,12 +1,11 @@
 {
-    "development": {
-      "database": "DB_ACCOUNTING",
-      "username": "UsersDev",
-      "password": "${POSTGRES_PASSWORD}",
-      "host": "localhost",
-      "port": 3000,
-      "gateway": 8080,
-      "dialect": "postgres",
-      "jwtSecret": "${JWT_SECRET}"
-    }
+  "development": {
+    "database": "DB_ACCOUNTING",
+    "username": "",
+    "password": "",
+    "host": "localhost",
+    "port": 3000,
+    "dialect": "postgres",
+    "jwtSecret": ""
   }
+}

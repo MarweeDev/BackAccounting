@@ -16,4 +16,18 @@ const sequelize = new Sequelize(
   envConfig.jwtSecret || process.env.JWT_SECRET
 );
 
-module.exports = sequelize;
+async function runRawQuery(sqlQuery, params) {
+  try {
+    const result = await sequelize.query(sqlQuery, 
+      { 
+        replacements: params, 
+        type: Sequelize.QueryTypes.SELECT 
+      });
+    return result;
+  } catch (error) {
+    console.error('Error en la consulta:', error);
+    throw error;
+  }
+}
+
+module.exports = runRawQuery;

@@ -4,11 +4,18 @@ const Controller = require('../../services/webServices/controllers/usersControll
 
 // Endpoint para registrar un usuario
 usersEndPoint.post('/users/post', Controller.usersController.postUser);
-// Endpoint para registrar un usuario
-usersEndPoint.get('/users/get/:id', Controller.usersController.getUser);
-// Endpoint para registrar un usuario
+// Endpoint para consultar todos los usuarios
+usersEndPoint.get('/users/get', Controller.usersController.getUser);
+// Endpoint para consultar un usuario
+usersEndPoint.get('/users/get/:id', Controller.usersController.getUserById);
+// Endpoint para actualziar un usuario
 usersEndPoint.put('/users/put/:id', Controller.usersController.updateUser);
-// Endpoint para registrar un usuario
-usersEndPoint.delete('/users/delete/:id', Controller.usersController.deleteUser);
+// Endpoint para eliminar un usuario - se actualiza su estado
+usersEndPoint.put('/users/delete/:id', Controller.usersController.deleteUser);
+
+//Login
+usersEndPoint.get('/users/getLogin', Controller.usersController.getLogin);
+//InforUser
+usersEndPoint.get('/users/getInfoUser', Controller.usersController.getInfoUser);
 
 module.exports = usersEndPoint;
