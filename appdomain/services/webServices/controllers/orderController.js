@@ -1,4 +1,5 @@
 const path = require('path');
+console.log('Directorio de trabajo actual:', __dirname);
 console.log("path ruta:", path.join(__dirname, '../../infrastructure/models/source/orderDTO'))
 console.log("path ruta:", '../../../infrastructure/models/source/orderDTO')
 const ModelDTO = require('../../../infrastructure/models/source/orderDTO');
