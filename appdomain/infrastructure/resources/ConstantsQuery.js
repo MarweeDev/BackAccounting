@@ -77,6 +77,7 @@ class Constants {
         sum(pr.precio * odd.cantidad) as Valor_forma_de_pago,
         ti.referencia as Codigo_forma_de_pago,
         ti.nombre as Descripcion_forma_de_pago,
+        es.nombre as Estado_orden,
         TO_CHAR(od.fecha_creacion, 'DD-MM-YYYY HH24:MI:SS') as Fecha_de_elaboracion
       from orden od
       inner join cliente cl on od.id_client = cl.id
@@ -85,6 +86,7 @@ class Constants {
       inner join usuarios us on od.id_usuario = us.id
       inner join suscritos su on us.id_suscrito = su.id
       inner join tipopago ti on od.id_tipopago = ti.id
+      inner join estado es on od.id_estadoorden = es.id
       where
         TO_CHAR(od.fecha_creacion, 'YYYY-MM-DD') BETWEEN ? AND ?
       GROUP BY 
@@ -98,8 +100,10 @@ class Constants {
         odd.cantidad, 
         pr.precio, 
         ti.referencia, 
-        ti.nombre, 
-        od.fecha_creacion;
+        ti.nombre,
+        es.nombre,
+        od.fecha_creacion
+      ORDER BY od.fecha_creacion asc;
       `,
       GetOrderID: 
       `
