@@ -41,7 +41,7 @@ const productController = {
   },
 
   post: async (req, res) => {
-    const { nombre, descripcion, precio, id_categoria } = req.body;
+    const { nombre, descripcion, precio, id_categoria, referencia } = req.body;
 
     try {
     const existing = await Product.findOne({ where: { nombre, id_categoria } });
@@ -54,6 +54,7 @@ const productController = {
         descripcion,
         precio,
         id_categoria,
+        referencia,
         id_estado : 1
       });
 
@@ -66,7 +67,7 @@ const productController = {
 
   update: async (req, res) => {
     const Id = req.params.id;
-    const { nombre, descripcion, precio, id_categoria } = req.body;
+    const { nombre, descripcion, precio, id_categoria, referencia } = req.body;
 
     try {
       const product = await Product.findOne({ where: { id: Id } });
@@ -80,6 +81,7 @@ const productController = {
             nombre,
             descripcion,
             precio,
+            referencia,
             id_categoria
         },
         { where: { id: Id } }

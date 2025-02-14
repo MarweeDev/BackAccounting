@@ -22,6 +22,10 @@ const ProductDto = sequelize.define('producto', {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
+  referencia: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
 }, {
   tableName: 'producto',
   timestamps: false,

@@ -157,11 +157,10 @@ const orderController = {
   },
 
   update: async (req, res) => {
-    const Id = req.params.id;
-    const { id_mesa } = req.body;
+    const { codigo, observacion } = req.body;
 
     try {
-      const result = await ModelDTO.findOne({ where: { id: Id } });
+      const result = await ModelDTO.findOne({ where: { codigo: codigo } });
 
       if (!result) {
         return res.status(404).json({ message: 'Orden no encontrado' });
@@ -169,9 +168,10 @@ const orderController = {
 
       await ModelDTO.update(
         {
-            id_mesa
+          observacion : observacion,
+          id_estadoorden : 9
         },
-        { where: { id: Id } }
+        { where: { codigo: codigo } }
       );
 
       res.json({ message: 'Orden actualizado exitosamente' });

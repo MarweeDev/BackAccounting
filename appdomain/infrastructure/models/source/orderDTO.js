@@ -29,6 +29,10 @@ const OrderDto = sequelize.define('orden', {
   id_estadoorden: {
     type: DataTypes.INTEGER,
     allowNull: false,
+  },
+  observacion: {
+    type: DataTypes.STRING,
+    allowNull: true,
   }
 }, {
   tableName: 'orden',

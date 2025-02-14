@@ -130,7 +130,8 @@ class Constants {
       GetLogin:
       `
       select
-        au.token_publico as token
+        au.token_publico as token,
+        usu.id_pais
       from usuarios usu
         inner join suscritos sus on usu.id_suscrito = sus.id
         inner join authorizationtoken au on usu.id = au.id_usuario
