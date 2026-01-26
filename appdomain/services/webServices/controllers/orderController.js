@@ -156,14 +156,14 @@ const orderController = {
     }
   },
 
-  update: async (req, res) => {
+  updateNull: async (req, res) => {
     const { codigo, observacion } = req.body;
 
     try {
       const result = await ModelDTO.findOne({ where: { codigo: codigo } });
 
       if (!result) {
-        return res.status(404).json({ message: 'Orden no encontrado' });
+        return res.status(404).json({ message: 'Orden no encontrada' });
       }
 
       await ModelDTO.update(
@@ -174,10 +174,66 @@ const orderController = {
         { where: { codigo: codigo } }
       );
 
-      res.json({ message: 'Orden actualizado exitosamente' });
+      res.json({ message: 'Orden anulada exitosamente' });
+    } catch (error) {
+      console.error('Error al anular orden', error);
+      res.status(500).json({ message: 'Error al anular orden' });
+    }
+  },
+
+  update: async (req, res) => {
+    const ordersList = req.body;
+
+    try {
+      const result = await ModelDTO.findOne({ where: { codigo: ordersList[0].codigo } });
+
+      if (!result) {
+        return res.status(404).json({ message: 'Orden no encontrado' });
+      }
+
+      // Actualizar la orden - solo el campo observacion por ahora
+      await ModelDTO.update(
+        {
+          observacion : ordersList[0].observacion
+        },
+        { where: { codigo: ordersList[0].codigo } }
+      );
+
+      // Actualizar el detalle de la orden - solo el campo cantidad por ahora
+      await Promise.all(ordersList.map(async (orderD) => {
+        // Verificar si el producto ya existe en el detalle de la orden
+        const existProduct = await ModelDetailDTO.findOne({
+          where: 
+            { 
+              id_producto: orderD.detalle.id_producto, 
+              codigo_orden: orderD.detalle.codigo_orden 
+            }
+        });
+
+        // Si existe, actualizar la cantidad, si no, crear un nuevo registro
+        if (existProduct) {
+          // Actualizar la cantidad del producto existente
+          await ModelDetailDTO.update(
+          {
+            cantidad: orderD.detalle.cantidad
+          },
+          { where: 
+            { 
+              id_producto: orderD.detalle.id_producto
+            } 
+          });
+        }
+        else {
+          // Crear un nuevo registro en el detalle de la orden
+          await ModelDetailDTO.create(orderD.detalle);
+        }
+        
+      }));
+
+      res.json({ message: 'Orden actualizada exitosamente'});
     } catch (error) {
       console.error('Error al actualizar orden', error);
-      res.status(500).json({ message: 'Error al actualizar orden' });
+      res.status(500).json({ message: 'Error al actualizar orden'});
     }
   },
 

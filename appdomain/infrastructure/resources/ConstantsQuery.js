@@ -111,10 +111,12 @@ class Constants {
         od.codigo,
         es.nombre as estado,
         us.usuario,
+        pr.id as id_producto,
         pr.nombre as producto,
         pr.precio,
         odd.cantidad,
         cp.nombre as categoria,
+        cl.id as id_cliente,
         cl.nombre as cliente,
         TO_CHAR(od.fecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha
       FROM 
@@ -148,12 +150,14 @@ class Constants {
         m.id as id_modulo,
         m.modulo,
         m.ruta,
-        m.icono
+        m.icono,
+        s.imagen
       from usuarios usu
         inner join rol r on usu.id_rol = r.id
         inner join rol_modulo rm on r.id = rm.id_rol
         inner join modulo m on rm.id_modulo = m.id
         inner join authorizationtoken au on usu.id = au.id_usuario
+        inner join suscritos s on usu.id_suscrito = s.id
       where
         au.token_publico = ?
       order by m.position_module asc

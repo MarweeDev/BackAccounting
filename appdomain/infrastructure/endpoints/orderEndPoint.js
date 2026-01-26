@@ -16,9 +16,11 @@ EndPoint.get('/order/getExport', Controller.orderController.getFindExport);
 EndPoint.get('/order/get/generateCodeOrder', Controller.orderController.getCodeOrder);
 // Endpoint para consultar un mesa
 EndPoint.get('/order/get/:id', Controller.orderController.getById);
-// Endpoint para actualziar un mesa
+// Endpoint para actualizar una orden - Anulado
+EndPoint.put('/order/status/null', Controller.orderController.updateNull);
+// Endpoint para actualizar una orden
 EndPoint.put('/order/put', Controller.orderController.update);
-
+// Endpoint para actualizar el estado de pago de una orden
 EndPoint.put('/order/status/pay', Controller.orderController.updatePay);
 // Endpoint para eliminar un mesa - se actualiza su estado
 EndPoint.put('/order/delete/:id', Controller.orderController.delete);
