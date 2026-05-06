@@ -6,9 +6,10 @@ const UserDto = sequelize.define('usuarios', {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  contraseña: {
+  contrasena: {
     type: DataTypes.STRING,
     allowNull: false,
+    field: 'contrasena',
   },
   id_colaborador: {
     type: DataTypes.INTEGER,

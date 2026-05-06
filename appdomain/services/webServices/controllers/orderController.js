@@ -1,5 +1,5 @@
 const ModelDTO = require('../../../infrastructure/models/source/orderDTO');
-const ModelDetailDTO = require('../../../infrastructure/models/source/DetailOrderDto');
+const ModelDetailDTO = require('../../../infrastructure/models/source/detailOrderDTO');
 const runQuery = require('../../../infrastructure/config/poolbase');
 const Constants = require('../../../infrastructure/resources/ConstantsQuery');
 const utilitys = require('../../../utility/utilitys');

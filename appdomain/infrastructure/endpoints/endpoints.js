@@ -1,4 +1,5 @@
 //source
+const authRoutes = require('./authEndPoint');
 const usersRoutes = require('./usersEndPoint');
 const collaboratorRoutes = require('./collaboratorEndPoint');
 const moduleRoutes = require('./moduleEndPoint');
@@ -7,6 +8,8 @@ const mesaRoutes = require('./mesaEndPoint');
 const productRoutes = require('./productEndPoint');
 const orderRoutes = require('./orderEndPoint');
 const clientRoutes = require('./clientEndPoint');
+const shoppingRoutes = require('./shoppingEndPoint');
+const supplierRoutes = require('./supplierEndPoint');
 
 //shared
 const statusRoutes = require('./statusEndPoint');
@@ -15,6 +18,7 @@ const categoryRoutes = require('./productCategoryEndPoint');
 const typepayRoutes = require('./typePayEndPoint');
 
 module.exports = {
+  auth: authRoutes,
   users: usersRoutes,
   collaborator: collaboratorRoutes,
   status: statusRoutes,
@@ -26,5 +30,7 @@ module.exports = {
   category: categoryRoutes,
   order: orderRoutes,
   typepay: typepayRoutes,
-  client: clientRoutes
+  client: clientRoutes,
+  shopping: shoppingRoutes,
+  supplier: supplierRoutes
 };

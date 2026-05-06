@@ -7,7 +7,7 @@ statusEndPoint.post('/status/post', Controller.statusController.postStatus);
 // Endpoint para consultar todos los estado
 statusEndPoint.get('/status/get', Controller.statusController.getStatus);
 // Endpoint para consultar todos los estado por grupo
-statusEndPoint.get('/status/get', Controller.statusController.getStatusById);
+statusEndPoint.get('/status/get/group/:codigogrupo', Controller.statusController.getStatusById);
 // Endpoint para actualziar un estado
 statusEndPoint.put('/status/put/:id', Controller.statusController.updateStatus);
 // Endpoint para eliminar un estado - se actualiza su estado

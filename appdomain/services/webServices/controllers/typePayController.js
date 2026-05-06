@@ -1,5 +1,5 @@
 const ModelDTO = require('../../../infrastructure/models/shared/typePayDTO');
-const ModelSubDTO = require('../../../infrastructure/models/shared/SubTypePayDto');
+const ModelSubDTO = require('../../../infrastructure/models/shared/subTypePayDTO');
 
 const typePayController = {
   

@@ -4,6 +4,7 @@ const config = require('../../../infrastructure/config/config.json');
 const utilitys = require('../../../utility/utilitys');
 const Constants = require('../../../infrastructure/resources/ConstantsQuery');
 const runQuery = require('../../../infrastructure/config/poolbase');
+const { getPasswordFromBody, hashPassword, isBcryptHash, verifyPassword } = require('../../../utility/passwords');
 
 const env = process.env.NODE_ENV || 'development';
 const envConfig = config[env];
@@ -41,16 +42,31 @@ const usersController = {
 
   getLogin: async (req, res) => {
     const { email, pass } = req.query;
+    res.set('Deprecation', 'true');
+    res.set('Sunset', '2026-12-31');
+    res.set('Link', '</appdomain/api/auth/login>; rel="successor-version"');
 
     try {
-      const rows = await runQuery(Constants.ServicesMethod.GetLogin, [email, email, pass]);
-      console.log('Rows result: ', rows)
+      const rows = await runQuery(Constants.ServicesMethod.GetLoginUser, [email, email]);
       // Verificar si hay resultados
       if (rows.length == 0) {
-        return res.status(200).json({ message: 'No se encontro ningun usuario con las credenciales', status: 204 });
+        return res.status(200).json({ message: 'No se encontro ningun usuario con las credenciales', status: 204, deprecated: true });
       }
 
-      res.json({ result: rows });
+      const validPassword = await verifyPassword(pass, rows[0].password);
+      if (!validPassword) {
+        return res.status(200).json({ message: 'No se encontro ningun usuario con las credenciales', status: 204, deprecated: true });
+      }
+
+      if (!isBcryptHash(rows[0].password)) {
+        await User.update(
+          { contrasena: await hashPassword(pass) },
+          { where: { id: rows[0].id_usuario } }
+        );
+      }
+
+      const result = rows.map(({ password, id_usuario, ...row }) => row);
+      res.json({ result, deprecated: true });
     } catch (error) {
       console.error('Error al obtener usuario:', error);
       res.status(500).json({ message: 'Error al obtener usuario' });
@@ -76,18 +92,24 @@ const usersController = {
   },
 
   postUser: async (req, res) => {
-    const { usuario, contraseña, id_colaborador, id_rol, id_estado } = req.body;
+    const { usuario, id_colaborador, id_rol, id_estado } = req.body;
+    const password = getPasswordFromBody(req.body);
 
     try {
+      if (!password) {
+        return res.status(400).json({ message: 'La contraseña es obligatoria' });
+      }
+
       const existingUser = await User.findOne({ where: { usuario } });
       if (existingUser) {
         return res.status(400).json({ message: 'El usuario ya existe' });
       }
 
       const fecha = utilitys_.getCurrentTimestamp();
+      const contrasena = await hashPassword(password);
       const newUser = await User.create({
         usuario,
-        contraseña,
+        contrasena,
         id_colaborador,
         id_rol,
         id_estado,
@@ -103,7 +125,8 @@ const usersController = {
 
   updateUser: async (req, res) => {
     const userId = req.params.id;
-    const { usuario, contraseña, id_colaborador, id_rol, id_estado } = req.body;
+    const { usuario, id_colaborador, id_rol, id_estado } = req.body;
+    const password = getPasswordFromBody(req.body);
 
     try {
       const user = await User.findOne({ where: { id: userId } });
@@ -113,15 +136,20 @@ const usersController = {
       }
 
       const fecha = utilitys_.getCurrentTimestamp();
+      const updateFields = {
+        usuario,
+        id_colaborador,
+        id_rol,
+        id_estado,
+        fecha_actualizacion : fecha
+      };
+
+      if (password) {
+        updateFields.contrasena = await hashPassword(password);
+      }
+
       await User.update(
-        {
-          usuario,
-          contraseña,
-          id_colaborador,
-          id_rol,
-          id_estado,
-          fecha_actualizacion : fecha
-        },
+        updateFields,
         { where: { id: userId } }
       );
 

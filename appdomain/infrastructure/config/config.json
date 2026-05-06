@@ -4,16 +4,18 @@
     "username": "",
     "password": "",
     "host": "localhost",
-    "port": 3000,
+    "appPort": 3000,
+    "dbPort": 5432,
     "dialect": "postgres",
     "jwtSecret": ""
   },
   "production": {
     "database": "railway",
-    "username": "postgres",
-    "password": "aEGvnaMMFtgwnVlEKgwTNGLcqAJEclFY",
+    "username": "",
+    "password": "",
     "host": "postgres.railway.internal",
-    "port": 5432,
+    "appPort": 3000,
+    "dbPort": 5432,
     "dialect": "postgres",
     "jwtSecret": ""
   }

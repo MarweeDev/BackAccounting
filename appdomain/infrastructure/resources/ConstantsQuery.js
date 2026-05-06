@@ -140,6 +140,19 @@ class Constants {
       where
         (usu.usuario = ? or sus.correo = ?) and usu.contrasena = ?
       `,
+      GetLoginUser:
+      `
+      select
+        au.token_publico as token,
+        usu.id_pais,
+        usu.id as id_usuario,
+        usu.contrasena as password
+      from usuarios usu
+        inner join suscritos sus on usu.id_suscrito = sus.id
+        inner join authorizationtoken au on usu.id = au.id_usuario
+      where
+        (usu.usuario = ? or sus.correo = ?)
+      `,
       GetInfoUser:
       `
       select

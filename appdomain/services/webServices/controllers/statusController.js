@@ -18,7 +18,7 @@ const statusController = {
   },
 
   getStatusById: async (req, res) => {
-    const { codigogrupo } = req.body;
+    const codigogrupo = req.params.codigogrupo || req.query.codigogrupo || req.body.codigogrupo;
 
     try {
       const result = await Status.findOne({ where: { codigogrupo, estado : "S" } });
