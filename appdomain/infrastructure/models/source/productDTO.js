@@ -26,6 +26,10 @@ const ProductDto = sequelize.define('producto', {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  image: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  }
 }, {
   tableName: 'producto',
   timestamps: false,

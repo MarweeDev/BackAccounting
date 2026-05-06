@@ -1,9 +1,10 @@
 const express = require('express');
 const EndPoint = express.Router();
 const Controller = require('../../services/webServices/controllers/productController');
+const upload = require('../../utility/upload');
 
 // Endpoint para registrar un mesa
-EndPoint.post('/product/post', Controller.productController.post);
+EndPoint.post('/product/post', upload.single('image'), Controller.productController.post);
 // Endpoint para consultar todos los mesa
 EndPoint.get('/product/get', Controller.productController.get);
 // Endpoint para consultar todos los mesa

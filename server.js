@@ -28,6 +28,8 @@ app.use("/appdomain/api/", endpointsRoutes.category);
 app.use("/appdomain/api/", endpointsRoutes.order);
 app.use("/appdomain/api/", endpointsRoutes.typepay);
 app.use("/appdomain/api/", endpointsRoutes.client);
+// Endpoint para servir archivos estáticos (imágenes)
+app.use('/uploads', express.static('uploads'));
 
 // Sincronizar la base de datos y arrancar el servidor
 const sequelize = require('./appdomain/infrastructure/config/db');

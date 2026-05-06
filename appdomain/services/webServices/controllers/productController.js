@@ -49,13 +49,18 @@ const productController = {
         return res.status(400).json({ message: 'El producto ya existe' });
       }
 
+      const imagePath = req.file
+      ? `${req.protocol}://${req.get('host')}/uploads/products/${req.file.filename}`
+      : null;
+
       const newProduct = await Product.create({
         nombre,
         descripcion,
         precio,
         id_categoria,
         referencia,
-        id_estado : 1
+        id_estado : 1,
+        image: imagePath
       });
 
       res.json({ message: 'producto registrado exitosamente', status: newProduct });
