@@ -14,6 +14,7 @@ const stockRoutes = require('./stockEndPoint');
 const settingParameterRoutes = require('./settingParameterEndPoint');
 const developmentResourceRoutes = require('./developmentResourceEndPoint');
 const componentPermissionRoutes = require('./componentPermissionEndPoint');
+const accessControlRoutes = require('./accessControlEndPoint');
 
 //shared
 const statusRoutes = require('./statusEndPoint');
@@ -40,5 +41,6 @@ module.exports = {
   stock: stockRoutes,
   settingParameter: settingParameterRoutes,
   developmentResource: developmentResourceRoutes,
-  componentPermission: componentPermissionRoutes
+  componentPermission: componentPermissionRoutes,
+  accessControl: accessControlRoutes
 };

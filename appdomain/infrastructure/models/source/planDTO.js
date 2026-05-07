@@ -1,18 +1,16 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../../config/db');
 
-const RoleModuleDto = sequelize.define('rol_modulo', {
-  id_rol: {
+const PlanDto = sequelize.define('planes', {
+  tipo: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  duracion: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    primaryKey: true,
   },
-  id_modulo: {
-    type: DataTypes.INTEGER,
-    allowNull: false,
-    primaryKey: true,
-  },
-  id_estado: {
+  precio: {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
@@ -20,13 +18,17 @@ const RoleModuleDto = sequelize.define('rol_modulo', {
     type: DataTypes.DATE,
     allowNull: false,
   },
-  fecha_actualizacion: {
-    type: DataTypes.DATE,
+  descripcion: {
+    type: DataTypes.STRING,
     allowNull: true,
   },
+  unidad: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  }
 }, {
-  tableName: 'rol_modulo',
+  tableName: 'planes',
   timestamps: false,
 });
 
-module.exports = RoleModuleDto; 
+module.exports = PlanDto;

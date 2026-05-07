@@ -173,6 +173,7 @@ class Constants {
         inner join suscritos s on usu.id_suscrito = s.id
       where
         au.token_publico = ?
+        and rm.id_estado = 1
       order by m.position_module asc
       `
     };
