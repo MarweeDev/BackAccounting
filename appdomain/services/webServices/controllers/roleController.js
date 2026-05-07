@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const Role = require('../../../infrastructure/models/shared/roleDTO');
 const config = require('../../../infrastructure/config/config.json');
+const { auditEvent } = require('./auditService');
 
 const env = process.env.NODE_ENV || 'development';
 const envConfig = config[env];
@@ -32,6 +33,15 @@ const roleController = {
         id_estado : 1
       });
 
+      await auditEvent(req, {
+        modulo: 'Control de Acceso',
+        entidad: 'rol',
+        id_entidad: newRole.id,
+        accion: 'crear',
+        descripcion: 'Rol registrado desde Control de Acceso',
+        valor_nuevo: newRole
+      });
+
       res.json({ message: 'Rol registrado exitosamente', status: newRole });
     } catch (error) {
       console.error('Error al registrar rol:', error);
@@ -58,6 +68,17 @@ const roleController = {
         { where: { id: Id } }
       );
 
+      const result = await Role.findOne({ where: { id: Id } });
+      await auditEvent(req, {
+        modulo: 'Control de Acceso',
+        entidad: 'rol',
+        id_entidad: Id,
+        accion: 'actualizar',
+        descripcion: 'Rol actualizado desde Control de Acceso',
+        valor_anterior: role,
+        valor_nuevo: result
+      });
+
       res.json({ message: 'Rol actualizado exitosamente' });
     } catch (error) {
       console.error('Error al actualizar rol:', error);
@@ -81,6 +102,17 @@ const roleController = {
         },
         { where: { id: Id } }
       );
+
+      const result = await Role.findOne({ where: { id: Id } });
+      await auditEvent(req, {
+        modulo: 'Control de Acceso',
+        entidad: 'rol',
+        id_entidad: Id,
+        accion: 'deshabilitar',
+        descripcion: 'Rol deshabilitado desde Control de Acceso',
+        valor_anterior: role,
+        valor_nuevo: result
+      });
 
       res.json({ message: 'Rol actualizado exitosamente' });
     } catch (error) {

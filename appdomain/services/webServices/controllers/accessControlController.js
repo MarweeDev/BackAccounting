@@ -5,11 +5,13 @@ const Collaborator = require('../../../infrastructure/models/source/collaborator
 const Subscriber = require('../../../infrastructure/models/source/subscriberDTO');
 const Plan = require('../../../infrastructure/models/source/planDTO');
 const AuthorizationToken = require('../../../infrastructure/models/source/authorizationTokenDTO');
+const AuditEvent = require('../../../infrastructure/models/source/auditEventDTO');
 const Role = require('../../../infrastructure/models/shared/roleDTO');
 const Module = require('../../../infrastructure/models/source/moduleDTO');
 const RoleModule = require('../../../infrastructure/models/relation/roleModuleDTO');
 const utilitys = require('../../../utility/utilitys');
 const { getPasswordFromBody, hashPassword } = require('../../../utility/passwords');
+const { auditEvent } = require('./auditService');
 
 const utilitys_ = new utilitys();
 
@@ -167,6 +169,15 @@ const accessControlController = {
         imagen
       });
 
+      await auditEvent(req, {
+        modulo: 'Control de Acceso',
+        entidad: 'suscritos',
+        id_entidad: result.id,
+        accion: 'crear',
+        descripcion: 'Empresa registrada desde Control de Acceso',
+        valor_nuevo: result
+      });
+
       res.json({ message: 'Empresa registrada exitosamente', result });
     } catch (error) {
       console.error('Error al registrar empresa:', error);
@@ -188,6 +199,16 @@ const accessControlController = {
       );
 
       const result = await Subscriber.findOne({ where: { id: Id } });
+      await auditEvent(req, {
+        modulo: 'Control de Acceso',
+        entidad: 'suscritos',
+        id_entidad: Id,
+        accion: 'actualizar',
+        descripcion: 'Empresa actualizada desde Control de Acceso',
+        valor_anterior: subscriber,
+        valor_nuevo: result
+      });
+
       res.json({ message: 'Empresa actualizada exitosamente', result });
     } catch (error) {
       console.error('Error al actualizar empresa:', error);
@@ -203,6 +224,17 @@ const accessControlController = {
       if (!subscriber) return res.status(404).json({ message: 'Empresa no encontrada' });
 
       await Subscriber.update({ id_estado: 2, fecha_actualizacion: now() }, { where: { id: Id } });
+      const result = await Subscriber.findOne({ where: { id: Id } });
+      await auditEvent(req, {
+        modulo: 'Control de Acceso',
+        entidad: 'suscritos',
+        id_entidad: Id,
+        accion: 'deshabilitar',
+        descripcion: 'Empresa deshabilitada desde Control de Acceso',
+        valor_anterior: subscriber,
+        valor_nuevo: result
+      });
+
       res.json({ message: 'Empresa deshabilitada exitosamente' });
     } catch (error) {
       console.error('Error al deshabilitar empresa:', error);
@@ -218,6 +250,21 @@ const accessControlController = {
     } catch (error) {
       console.error('Error al obtener usuarios:', error);
       res.status(500).json({ message: 'Error al obtener usuarios' });
+    }
+  },
+
+  getAuditEvents: async (req, res) => {
+    try {
+      const result = await AuditEvent.findAll({
+        where: { id_estado: 1 },
+        order: [['fecha_creacion', 'DESC']],
+        limit: 80
+      });
+
+      res.json({ result });
+    } catch (error) {
+      console.error('Error al obtener auditoria:', error);
+      res.status(500).json({ message: 'Error al obtener auditoria' });
     }
   },
 
@@ -259,6 +306,15 @@ const accessControlController = {
 
       await ensureAuthorizationToken(user.id);
       const result = await buildUserRow(user);
+      await auditEvent(req, {
+        modulo: 'Control de Acceso',
+        entidad: 'usuarios',
+        id_entidad: user.id,
+        accion: 'crear',
+        descripcion: 'Usuario registrado desde Control de Acceso',
+        valor_nuevo: { ...result, password: undefined }
+      });
+
       res.json({ message: 'Usuario registrado exitosamente', result });
     } catch (error) {
       console.error('Error al registrar usuario:', error);
@@ -294,6 +350,16 @@ const accessControlController = {
 
       const updated = await User.findOne({ where: { id: Id } });
       const result = await buildUserRow(updated);
+      await auditEvent(req, {
+        modulo: 'Control de Acceso',
+        entidad: 'usuarios',
+        id_entidad: Id,
+        accion: 'actualizar',
+        descripcion: 'Usuario actualizado desde Control de Acceso',
+        valor_anterior: { id: user.id, usuario: user.usuario, id_rol: user.id_rol, id_suscrito: user.id_suscrito, id_estado: user.id_estado },
+        valor_nuevo: { ...result, password: undefined }
+      });
+
       res.json({ message: 'Usuario actualizado exitosamente', result });
     } catch (error) {
       console.error('Error al actualizar usuario:', error);
@@ -310,6 +376,17 @@ const accessControlController = {
 
       await User.update({ id_estado: 2, fecha_actualizacion: now() }, { where: { id: Id } });
       await Collaborator.update({ id_estado: 2, fecha_actualizacion: now() }, { where: { id: user.id_colaborador } });
+      const result = await User.findOne({ where: { id: Id } });
+      await auditEvent(req, {
+        modulo: 'Control de Acceso',
+        entidad: 'usuarios',
+        id_entidad: Id,
+        accion: 'deshabilitar',
+        descripcion: 'Usuario deshabilitado desde Control de Acceso',
+        valor_anterior: { id: user.id, usuario: user.usuario, id_rol: user.id_rol, id_suscrito: user.id_suscrito, id_estado: user.id_estado },
+        valor_nuevo: { id: result.id, usuario: result.usuario, id_rol: result.id_rol, id_suscrito: result.id_suscrito, id_estado: result.id_estado }
+      });
+
       res.json({ message: 'Usuario deshabilitado exitosamente' });
     } catch (error) {
       console.error('Error al deshabilitar usuario:', error);
@@ -326,6 +403,7 @@ const accessControlController = {
 
       const modules = await Module.findAll({ where: { id_estado: 1 } });
       const fecha = now();
+      const previousRoleModules = await getRoleModules();
 
       for (const module of modules) {
         const shouldEnable = moduleIds.includes(module.id);
@@ -347,6 +425,16 @@ const accessControlController = {
       }
 
       const result = await getRoleModules();
+      await auditEvent(req, {
+        modulo: 'Control de Acceso',
+        entidad: 'rol_modulo',
+        id_entidad: roleId,
+        accion: 'actualizar_permisos',
+        descripcion: 'Permisos de modulos por rol actualizados desde Control de Acceso',
+        valor_anterior: previousRoleModules.filter(item => item.id_rol === roleId),
+        valor_nuevo: result.filter(item => item.id_rol === roleId)
+      });
+
       res.json({ message: 'Permisos de rol actualizados exitosamente', result });
     } catch (error) {
       console.error('Error al actualizar permisos de rol:', error);

@@ -16,6 +16,8 @@ EndPoint.post('/access-control/users/post', authenticateToken, Controller.access
 EndPoint.put('/access-control/users/put/:id', authenticateToken, Controller.accessControlController.updateUser);
 EndPoint.put('/access-control/users/delete/:id', authenticateToken, Controller.accessControlController.deleteUser);
 
+EndPoint.get('/access-control/audit/get', authenticateToken, Controller.accessControlController.getAuditEvents);
+
 EndPoint.put('/access-control/roles/:id/modules', authenticateToken, Controller.accessControlController.updateRoleModules);
 
 module.exports = EndPoint;
