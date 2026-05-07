@@ -1,5 +1,7 @@
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const User = require('../../../infrastructure/models/source/usersDTO');
+const AuthorizationToken = require('../../../infrastructure/models/source/authorizationTokenDTO');
 const config = require('../../../infrastructure/config/config.json');
 const Constants = require('../../../infrastructure/resources/ConstantsQuery');
 const runQuery = require('../../../infrastructure/config/poolbase');
@@ -7,6 +9,36 @@ const { getPasswordFromBody, hashPassword, isBcryptHash, verifyPassword } = requ
 
 const env = process.env.NODE_ENV || 'development';
 const envConfig = config[env];
+
+function buildLegacyToken() {
+  return crypto.randomBytes(22).toString('base64url').slice(0, 30);
+}
+
+async function ensureLegacyToken(userId, currentToken) {
+  if (currentToken) return currentToken;
+
+  const existing = await AuthorizationToken.findOne({ where: { id_usuario: userId } });
+  if (existing) {
+    if (existing.id_estado !== 1) {
+      await AuthorizationToken.update(
+        { id_estado: 1, fecha_actualizacion: new Date() },
+        { where: { id_usuario: userId } }
+      );
+    }
+    return existing.token_publico;
+  }
+
+  const token = buildLegacyToken();
+  await AuthorizationToken.create({
+    token_privado: buildLegacyToken(),
+    token_publico: token,
+    id_usuario: userId,
+    id_estado: 1,
+    fecha_creacion: new Date()
+  });
+
+  return token;
+}
 
 function createAuthResponse(user, jwtSecret) {
   const token = jwt.sign(
@@ -80,6 +112,7 @@ const authController = {
         );
       }
 
+      user.token = await ensureLegacyToken(user.id_usuario, user.token);
       res.json(createAuthResponse(user, jwtSecret));
     } catch (error) {
       console.error('Error al iniciar sesion:', error);

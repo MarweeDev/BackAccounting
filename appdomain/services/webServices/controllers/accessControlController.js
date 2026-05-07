@@ -1,8 +1,10 @@
 const { Op } = require('sequelize');
+const crypto = require('crypto');
 const User = require('../../../infrastructure/models/source/usersDTO');
 const Collaborator = require('../../../infrastructure/models/source/collaboratorDTO');
 const Subscriber = require('../../../infrastructure/models/source/subscriberDTO');
 const Plan = require('../../../infrastructure/models/source/planDTO');
+const AuthorizationToken = require('../../../infrastructure/models/source/authorizationTokenDTO');
 const Role = require('../../../infrastructure/models/shared/roleDTO');
 const Module = require('../../../infrastructure/models/source/moduleDTO');
 const RoleModule = require('../../../infrastructure/models/relation/roleModuleDTO');
@@ -25,6 +27,33 @@ function buildCode(value) {
     .toUpperCase()
     .replace(/[^A-Z0-9]/g, '')
     .slice(0, 12) + '-' + Date.now().toString().slice(-5);
+}
+
+function buildLegacyToken() {
+  return crypto.randomBytes(22).toString('base64url').slice(0, 30);
+}
+
+async function ensureAuthorizationToken(userId) {
+  const existing = await AuthorizationToken.findOne({ where: { id_usuario: userId } });
+  const fecha = now();
+
+  if (existing) {
+    if (existing.id_estado !== 1) {
+      await AuthorizationToken.update(
+        { id_estado: 1, fecha_actualizacion: fecha },
+        { where: { id_usuario: userId } }
+      );
+    }
+    return;
+  }
+
+  await AuthorizationToken.create({
+    token_privado: buildLegacyToken(),
+    token_publico: buildLegacyToken(),
+    id_usuario: userId,
+    id_estado: 1,
+    fecha_creacion: fecha
+  });
 }
 
 async function buildUserRow(user) {
@@ -228,6 +257,7 @@ const accessControlController = {
         fecha_creacion: fecha
       });
 
+      await ensureAuthorizationToken(user.id);
       const result = await buildUserRow(user);
       res.json({ message: 'Usuario registrado exitosamente', result });
     } catch (error) {
