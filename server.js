@@ -30,6 +30,7 @@ app.use("/appdomain/api/", endpointsRoutes.typepay);
 app.use("/appdomain/api/", endpointsRoutes.client);
 app.use("/appdomain/api/", endpointsRoutes.shopping);
 app.use("/appdomain/api/", endpointsRoutes.supplier);
+app.use("/appdomain/api/", endpointsRoutes.stock);
 // Endpoint para servir archivos estáticos (imágenes)
 app.use('/uploads', express.static('uploads'));
 

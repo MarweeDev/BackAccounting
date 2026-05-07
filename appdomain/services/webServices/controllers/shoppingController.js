@@ -2,8 +2,16 @@ const Shopping = require('../../../infrastructure/models/source/shoppingDTO');
 const DetailShopping = require('../../../infrastructure/models/source/detailShoppingDTO');
 const Supplier = require('../../../infrastructure/models/source/supplierDTO');
 const Product = require('../../../infrastructure/models/source/productDTO');
+const { changeProductStock } = require('./stockController');
 const utilitys = require('../../../utility/utilitys');
 const utilitys_ = new utilitys();
+
+async function applyShoppingStock(items, direction = 1) {
+  await Promise.all(items.map(item => {
+    const quantity = Number(item.cantidad || 0) * direction;
+    return changeProductStock(item.id_producto, quantity);
+  }));
+}
 
 async function buildShoppingResponse(shopping) {
   const provider = await Supplier.findOne({ where: { id: shopping.id_proveedor } });
@@ -97,6 +105,8 @@ const shoppingController = {
         fecha_creacion: fecha
       })));
 
+      await applyShoppingStock(detailItems, 1);
+
       const result = await buildShoppingResponse(shopping);
       res.json({ message: 'Compra registrada exitosamente', result });
     } catch (error) {
@@ -116,6 +126,7 @@ const shoppingController = {
         return res.status(404).json({ message: 'Compra no encontrada' });
       }
 
+      const previousItems = await DetailShopping.findAll({ where: { id_compra: req.params.id } });
       const total = detailItems.reduce((sum, item) => {
         return sum + (Number(item.cantidad || 0) * Number(item.valor_unitario || 0));
       }, 0);
@@ -125,6 +136,7 @@ const shoppingController = {
         { where: { id: req.params.id } }
       );
 
+      await applyShoppingStock(previousItems, -1);
       await DetailShopping.destroy({ where: { id_compra: req.params.id } });
       await Promise.all(detailItems.map(item => DetailShopping.create({
         id_compra: req.params.id,
@@ -133,6 +145,7 @@ const shoppingController = {
         valor_unitario: item.valor_unitario,
         fecha_creacion: utilitys_.getCurrentTimestamp()
       })));
+      await applyShoppingStock(detailItems, 1);
 
       const updated = await Shopping.findOne({ where: { id: req.params.id } });
       const result = await buildShoppingResponse(updated);
@@ -149,6 +162,11 @@ const shoppingController = {
 
       if (!shopping) {
         return res.status(404).json({ message: 'Compra no encontrada' });
+      }
+
+      if (Number(shopping.id_estado) === 1) {
+        const detailItems = await DetailShopping.findAll({ where: { id_compra: req.params.id } });
+        await applyShoppingStock(detailItems, -1);
       }
 
       await Shopping.update({ id_estado: 2 }, { where: { id: req.params.id } });

@@ -10,6 +10,7 @@ const orderRoutes = require('./orderEndPoint');
 const clientRoutes = require('./clientEndPoint');
 const shoppingRoutes = require('./shoppingEndPoint');
 const supplierRoutes = require('./supplierEndPoint');
+const stockRoutes = require('./stockEndPoint');
 
 //shared
 const statusRoutes = require('./statusEndPoint');
@@ -32,5 +33,6 @@ module.exports = {
   typepay: typepayRoutes,
   client: clientRoutes,
   shopping: shoppingRoutes,
-  supplier: supplierRoutes
+  supplier: supplierRoutes,
+  stock: stockRoutes
 };

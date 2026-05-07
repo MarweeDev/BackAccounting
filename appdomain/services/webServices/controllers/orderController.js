@@ -1,9 +1,27 @@
 const ModelDTO = require('../../../infrastructure/models/source/orderDTO');
 const ModelDetailDTO = require('../../../infrastructure/models/source/detailOrderDTO');
+const Product = require('../../../infrastructure/models/source/productDTO');
+const { changeProductStock } = require('./stockController');
 const runQuery = require('../../../infrastructure/config/poolbase');
 const Constants = require('../../../infrastructure/resources/ConstantsQuery');
 const utilitys = require('../../../utility/utilitys');
 const utilitys_ = new utilitys();
+
+async function discountPaidOrderStock(codigo) {
+  const details = await ModelDetailDTO.findAll({ where: { codigo_orden: codigo } });
+  const negativeItems = [];
+
+  await Promise.all(details.map(async detail => {
+    const updatedStock = await changeProductStock(detail.id_producto, Number(detail.cantidad || 0) * -1);
+
+    if (updatedStock && Number(updatedStock.cantidad) < 0) {
+      const product = await Product.findOne({ where: { id: detail.id_producto } });
+      negativeItems.push(product?.nombre || `Producto ${detail.id_producto}`);
+    }
+  }));
+
+  return negativeItems;
+}
 
 const orderController = {
   
@@ -260,11 +278,23 @@ const orderController = {
         status = 9; //Cancelada
       }
 
+      const shouldDiscountStock = Number(result.id_estadoorden) !== 8 && status === 8;
+      const negativeItems = shouldDiscountStock
+        ? await discountPaidOrderStock(codigo)
+        : [];
+      const stockObservation = negativeItems.length > 0
+        ? `Stock insuficiente registrado para: ${[...new Set(negativeItems)].join(', ')}.`
+        : '';
+      const nextObservation = stockObservation
+        ? [result.observacion, stockObservation].filter(Boolean).join(' ')
+        : result.observacion;
+
       await ModelDTO.update(
         {
             id_tipopago : id_tipopago,
             id_subtipopago : id_subtipopago,
-            id_estadoorden : status
+            id_estadoorden : status,
+            observacion: nextObservation
         },
         { where: { codigo: codigo } }
       );
