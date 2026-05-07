@@ -81,13 +81,18 @@ const productController = {
         return res.status(404).json({ message: 'Producto no encontrado' });
       }
 
+      const imagePath = req.file
+      ? `${req.protocol}://${req.get('host')}/uploads/products/${req.file.filename}`
+      : product.image;
+
       await Product.update(
         {
             nombre,
             descripcion,
             precio,
             referencia,
-            id_categoria
+            id_categoria,
+            image: imagePath
         },
         { where: { id: Id } }
       );

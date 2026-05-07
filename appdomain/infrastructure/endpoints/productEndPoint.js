@@ -13,7 +13,7 @@ EndPoint.get('/product/global/get/:id', Controller.productController.getCateg);
 // Endpoint para consultar un mesa
 EndPoint.get('/product/get/:id', Controller.productController.getById);
 // Endpoint para actualziar un mesa
-EndPoint.put('/product/put/:id', authenticateToken, Controller.productController.update);
+EndPoint.put('/product/put/:id', authenticateToken, upload.single('image'), Controller.productController.update);
 // Endpoint para actualizar un mesa - estado disponible/descartada
 EndPoint.put('/product/status/:id', authenticateToken, Controller.productController.updateStatus);
 // Endpoint para eliminar un mesa - se actualiza su estado
