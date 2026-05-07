@@ -11,6 +11,9 @@ const clientRoutes = require('./clientEndPoint');
 const shoppingRoutes = require('./shoppingEndPoint');
 const supplierRoutes = require('./supplierEndPoint');
 const stockRoutes = require('./stockEndPoint');
+const settingParameterRoutes = require('./settingParameterEndPoint');
+const developmentResourceRoutes = require('./developmentResourceEndPoint');
+const componentPermissionRoutes = require('./componentPermissionEndPoint');
 
 //shared
 const statusRoutes = require('./statusEndPoint');
@@ -34,5 +37,8 @@ module.exports = {
   client: clientRoutes,
   shopping: shoppingRoutes,
   supplier: supplierRoutes,
-  stock: stockRoutes
+  stock: stockRoutes,
+  settingParameter: settingParameterRoutes,
+  developmentResource: developmentResourceRoutes,
+  componentPermission: componentPermissionRoutes
 };

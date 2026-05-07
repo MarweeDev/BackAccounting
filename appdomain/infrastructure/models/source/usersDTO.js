@@ -23,6 +23,14 @@ const UserDto = sequelize.define('usuarios', {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
+  id_suscrito: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
+  id_pais: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
   fecha_creacion: {
     type: DataTypes.DATE,
     allowNull: false,
