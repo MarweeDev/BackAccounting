@@ -2,6 +2,11 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../../config/db');
 
 const ComponentPermissionDto = sequelize.define('permiso_componente', {
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true,
+  },
   id_rol: {
     type: DataTypes.INTEGER,
     allowNull: false,

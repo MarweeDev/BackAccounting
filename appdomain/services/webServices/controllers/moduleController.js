@@ -1,5 +1,6 @@
 const Module = require('../../../infrastructure/models/source/moduleDTO');
 const utilitys = require('../../../utility/utilitys');
+const { auditEvent } = require('./auditService');
 
 const utilitys_ = new utilitys();
 
@@ -35,6 +36,15 @@ const moduleController = {
         fecha_creacion : fecha
       });
 
+      await auditEvent(req, {
+        modulo: 'Control de Acceso',
+        entidad: 'modulo',
+        id_entidad: newModule.id,
+        accion: 'crear',
+        descripcion: 'Modulo registrado desde Control de Acceso',
+        valor_nuevo: newModule
+      });
+
       res.json({ message: 'Modulo registrado exitosamente', status: newModule });
     } catch (error) {
       console.error('Error al registrar modulo:', error);
@@ -66,6 +76,17 @@ const moduleController = {
         { where: { id: Id } }
       );
 
+      const result = await Module.findOne({ where: { id: Id } });
+      await auditEvent(req, {
+        modulo: 'Control de Acceso',
+        entidad: 'modulo',
+        id_entidad: Id,
+        accion: 'actualizar',
+        descripcion: 'Modulo actualizado desde Control de Acceso',
+        valor_anterior: module,
+        valor_nuevo: result
+      });
+
       res.json({ message: 'Modulo actualizado exitosamente' });
     } catch (error) {
       console.error('Error al actualizar modulo:', error);
@@ -90,6 +111,17 @@ const moduleController = {
         },
         { where: { id: Id } }
       );
+
+      const result = await Module.findOne({ where: { id: Id } });
+      await auditEvent(req, {
+        modulo: 'Control de Acceso',
+        entidad: 'modulo',
+        id_entidad: Id,
+        accion: 'deshabilitar',
+        descripcion: 'Modulo deshabilitado desde Control de Acceso',
+        valor_anterior: module,
+        valor_nuevo: result
+      });
 
       res.json({ message: 'Modulo actualizado exitosamente' });
     } catch (error) {

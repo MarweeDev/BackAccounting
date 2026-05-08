@@ -255,13 +255,38 @@ const accessControlController = {
 
   getAuditEvents: async (req, res) => {
     try {
-      const result = await AuditEvent.findAll({
-        where: { id_estado: 1 },
+      const page = Math.max(Number(req.query.page || 1), 1);
+      const pageSize = Math.min(Math.max(Number(req.query.pageSize || 20), 1), 80);
+      const where = { id_estado: 1 };
+
+      if (req.query.accion) where.accion = normalizeText(req.query.accion);
+      if (req.query.entidad) where.entidad = normalizeText(req.query.entidad);
+      if (req.query.id_usuario) where.id_usuario = Number(req.query.id_usuario);
+      if (req.query.id_suscrito) where.id_suscrito = Number(req.query.id_suscrito);
+      if (req.query.id_modulo) where.id_modulo = Number(req.query.id_modulo);
+
+      if (req.query.dateFrom || req.query.dateTo) {
+        where.fecha_creacion = {};
+        if (req.query.dateFrom) where.fecha_creacion[Op.gte] = new Date(`${req.query.dateFrom}T00:00:00`);
+        if (req.query.dateTo) where.fecha_creacion[Op.lte] = new Date(`${req.query.dateTo}T23:59:59`);
+      }
+
+      const { rows, count } = await AuditEvent.findAndCountAll({
+        where,
         order: [['fecha_creacion', 'DESC']],
-        limit: 80
+        limit: pageSize,
+        offset: (page - 1) * pageSize
       });
 
-      res.json({ result });
+      res.json({
+        result: rows,
+        pagination: {
+          page,
+          pageSize,
+          total: count,
+          totalPages: Math.ceil(count / pageSize)
+        }
+      });
     } catch (error) {
       console.error('Error al obtener auditoria:', error);
       res.status(500).json({ message: 'Error al obtener auditoria' });

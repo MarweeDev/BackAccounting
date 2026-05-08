@@ -1,5 +1,6 @@
 const ComponentPermission = require('../../../infrastructure/models/relation/componentPermissionDTO');
 const utilitys = require('../../../utility/utilitys');
+const { auditEvent } = require('./auditService');
 
 const utilitys_ = new utilitys();
 
@@ -47,6 +48,16 @@ const componentPermissionController = {
         );
 
         const result = await ComponentPermission.findOne({ where: { id: existing.id } });
+        await auditEvent(req, {
+          modulo: 'Control de Acceso',
+          entidad: 'permiso_componente',
+          id_entidad: existing.id,
+          accion: 'reactivar',
+          descripcion: 'Permiso de componente reactivado',
+          valor_anterior: existing,
+          valor_nuevo: result
+        });
+
         return res.json({ message: 'Permiso reactivado exitosamente', result });
       }
 
@@ -58,6 +69,15 @@ const componentPermissionController = {
         permitido,
         id_estado: 1,
         fecha_creacion: fecha
+      });
+
+      await auditEvent(req, {
+        modulo: 'Control de Acceso',
+        entidad: 'permiso_componente',
+        id_entidad: result.id,
+        accion: 'crear',
+        descripcion: 'Permiso de componente registrado',
+        valor_nuevo: result
       });
 
       res.json({ message: 'Permiso registrado exitosamente', result });
@@ -87,6 +107,16 @@ const componentPermissionController = {
       );
 
       const result = await ComponentPermission.findOne({ where: { id: Id } });
+      await auditEvent(req, {
+        modulo: 'Control de Acceso',
+        entidad: 'permiso_componente',
+        id_entidad: Id,
+        accion: 'actualizar',
+        descripcion: 'Permiso de componente actualizado',
+        valor_anterior: permission,
+        valor_nuevo: result
+      });
+
       res.json({ message: 'Permiso actualizado exitosamente', result });
     } catch (error) {
       console.error('Error al actualizar permiso:', error);
@@ -108,6 +138,17 @@ const componentPermissionController = {
         { id_estado: 2, fecha_actualizacion: utilitys_.getCurrentTimestamp() },
         { where: { id: Id } }
       );
+
+      const result = await ComponentPermission.findOne({ where: { id: Id } });
+      await auditEvent(req, {
+        modulo: 'Control de Acceso',
+        entidad: 'permiso_componente',
+        id_entidad: Id,
+        accion: 'deshabilitar',
+        descripcion: 'Permiso de componente deshabilitado',
+        valor_anterior: permission,
+        valor_nuevo: result
+      });
 
       res.json({ message: 'Permiso deshabilitado exitosamente' });
     } catch (error) {
