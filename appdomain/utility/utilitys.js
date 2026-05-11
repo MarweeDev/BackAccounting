@@ -17,7 +17,6 @@ class utilitys {
     }
 
     getGenerateCodeOrder(codeCompany, codeLength) {
-        console.log("contar: ", codeLength)
         const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
         const numbers = "0123456789";
         let randomCodeChar = '';

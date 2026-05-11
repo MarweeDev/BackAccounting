@@ -78,7 +78,6 @@ const usersController = {
 
     try {
       const rows = await runQuery(Constants.ServicesMethod.GetInfoUser, [token]);
-      console.log('Rows result: ', rows)
       // Verificar si hay resultados
       if (rows.length == 0) {
         return res.status(200).json({ message: 'No se encontro ninguna información del usuario' });

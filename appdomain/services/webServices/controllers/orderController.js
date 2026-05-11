@@ -38,7 +38,6 @@ const orderController = {
   getAll: async (req, res) => {
     try {
       const rows = await runQuery(Constants.ServicesMethod.GetOrderAll);
-      console.log('Rows result: ', rows)
       // Verificar si hay resultados
       if (rows.length == 0) {
         return res.status(400).json({ message: 'Todas están en uso por alguna orden activa' });
@@ -56,7 +55,6 @@ const orderController = {
 
     try {
       const rows = await runQuery(Constants.ServicesMethod.GetOrderFind, [Number.parseInt(id_estadoorden), Number.parseInt(id_estadoorden), fecha_creacion]);
-      console.log('Rows result: ', rows)
       // Verificar si hay resultados
       if (rows.length == 0) {
         return res.status(200).json({ message: 'No se encontro ninguna relación de orden' });
@@ -74,7 +72,6 @@ const orderController = {
 
     try {
       const rows = await runQuery(Constants.ServicesMethod.GetOrderID, [codigo.toString()]);
-      console.log('Rows result: ', rows)
       // Verificar si hay resultados
       if (rows.length == 0) {
         return res.status(400).json({ message: 'No se encontro ninguna relación de orden' });
@@ -91,9 +88,7 @@ const orderController = {
     const { fecha_init, fecha_fin } = req.query;
 
     try {
-      console.log('parameters: ', fecha_init,fecha_fin)
       const rows = await runQuery(Constants.ServicesMethod.GetOrderFindExport, [fecha_init, fecha_fin]);
-      console.log('Rows result: ', rows)
       // Verificar si hay resultados
       if (rows.length == 0) {
         return res.status(200).json({ message: 'No se encontro ninguna relación de orden' });
@@ -110,8 +105,7 @@ const orderController = {
     try {
       const existingOrders = await ModelDTO.findAll({
         attributes: ['codigo'],
-        group: ['codigo'],
-        logging: console.log
+        group: ['codigo']
       });
 
       let generateCodigo = utilitys_.getGenerateCodeOrder("FA", existingOrders.length);
