@@ -15,6 +15,7 @@ const settingParameterRoutes = require('./settingParameterEndPoint');
 const developmentResourceRoutes = require('./developmentResourceEndPoint');
 const componentPermissionRoutes = require('./componentPermissionEndPoint');
 const accessControlRoutes = require('./accessControlEndPoint');
+const peripheralRoutes = require('./peripheralEndPoint');
 
 //shared
 const statusRoutes = require('./statusEndPoint');
@@ -42,5 +43,6 @@ module.exports = {
   settingParameter: settingParameterRoutes,
   developmentResource: developmentResourceRoutes,
   componentPermission: componentPermissionRoutes,
-  accessControl: accessControlRoutes
+  accessControl: accessControlRoutes,
+  peripheral: peripheralRoutes
 };

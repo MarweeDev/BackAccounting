@@ -35,6 +35,7 @@ app.use("/appdomain/api/", endpointsRoutes.settingParameter);
 app.use("/appdomain/api/", endpointsRoutes.developmentResource);
 app.use("/appdomain/api/", endpointsRoutes.componentPermission);
 app.use("/appdomain/api/", endpointsRoutes.accessControl);
+app.use("/appdomain/api/", endpointsRoutes.peripheral);
 // Endpoint para servir archivos estáticos (imágenes)
 app.use('/uploads', express.static('uploads'));
 
