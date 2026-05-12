@@ -164,7 +164,10 @@ class Constants {
         m.modulo,
         m.ruta,
         m.icono,
-        s.imagen
+        s.imagen,
+        s.responsable as empresa,
+        s.codigo as codigo_empresa,
+        s.nit as nit_empresa
       from usuarios usu
         inner join rol r on usu.id_rol = r.id
         inner join rol_modulo rm on r.id = rm.id_rol
