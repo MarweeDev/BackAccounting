@@ -5,6 +5,7 @@ const { changeProductStock } = require('./stockController');
 const runQuery = require('../../../infrastructure/config/poolbase');
 const Constants = require('../../../infrastructure/resources/ConstantsQuery');
 const utilitys = require('../../../utility/utilitys');
+
 const utilitys_ = new utilitys();
 
 async function discountPaidOrderStock(codigo) {
