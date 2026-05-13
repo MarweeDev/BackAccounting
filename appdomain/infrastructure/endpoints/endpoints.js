@@ -17,6 +17,11 @@ const componentPermissionRoutes = require('./componentPermissionEndPoint');
 const accessControlRoutes = require('./accessControlEndPoint');
 const peripheralRoutes = require('./peripheralEndPoint');
 const paymentMethodRoutes = require('./paymentMethodEndPoint');
+const taxRoutes = require('./taxEndPoint');
+const inventoryMovementRoutes = require('./inventoryMovementEndPoint');
+const cashShiftRoutes = require('./cashShiftEndPoint');
+const reportsRoutes = require('./reportsEndPoint');
+const internalDocumentRoutes = require('./internalDocumentEndPoint');
 
 //shared
 const statusRoutes = require('./statusEndPoint');
@@ -46,5 +51,10 @@ module.exports = {
   componentPermission: componentPermissionRoutes,
   accessControl: accessControlRoutes,
   peripheral: peripheralRoutes,
-  paymentMethod: paymentMethodRoutes
+  paymentMethod: paymentMethodRoutes,
+  tax: taxRoutes,
+  inventoryMovement: inventoryMovementRoutes,
+  cashShift: cashShiftRoutes,
+  reports: reportsRoutes,
+  internalDocument: internalDocumentRoutes
 };

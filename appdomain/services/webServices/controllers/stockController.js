@@ -1,6 +1,10 @@
 const Stock = require('../../../infrastructure/models/source/stockDTO');
 const Product = require('../../../infrastructure/models/source/productDTO');
 const Category = require('../../../infrastructure/models/shared/productCategoryDTO');
+const utilitys = require('../../../utility/utilitys');
+const { createInventoryMovement } = require('./inventoryMovementController');
+
+const utilitys_ = new utilitys();
 
 async function buildStockResponse(row) {
   const product = await Product.findOne({ where: { id: row.id_producto } });
@@ -22,7 +26,7 @@ async function buildStockResponse(row) {
   };
 }
 
-async function changeProductStock(id_producto, quantityChange) {
+async function changeProductStock(id_producto, quantityChange, options = {}) {
   const productId = Number(id_producto);
   const change = Number(quantityChange || 0);
 
@@ -31,13 +35,41 @@ async function changeProductStock(id_producto, quantityChange) {
   }
 
   const stock = await Stock.findOne({ where: { id_producto: productId } });
+  const initialQuantity = Number(stock?.cantidad || 0);
 
   if (!stock) {
-    return Stock.create({ id_producto: productId, cantidad: change });
+    const created = await Stock.create({ id_producto: productId, cantidad: change });
+    await createInventoryMovement({
+      id_producto: productId,
+      tipo_movimiento: options.movementType || 'adjustment',
+      cantidad_inicial: 0,
+      entrada: change > 0 ? change : 0,
+      salida: change < 0 ? Math.abs(change) : 0,
+      cantidad_final: change,
+      origen_tipo: options.originType || null,
+      origen_id: options.originId ? String(options.originId) : null,
+      responsable: options.responsable || null,
+      id_suscrito: options.id_suscrito || null,
+      fecha_creacion: utilitys_.getCurrentTimestamp()
+    });
+    return created;
   }
 
-  const nextQuantity = Number(stock.cantidad || 0) + change;
+  const nextQuantity = initialQuantity + change;
   await Stock.update({ cantidad: nextQuantity }, { where: { id: stock.id } });
+  await createInventoryMovement({
+    id_producto: productId,
+    tipo_movimiento: options.movementType || 'adjustment',
+    cantidad_inicial: initialQuantity,
+    entrada: change > 0 ? change : 0,
+    salida: change < 0 ? Math.abs(change) : 0,
+    cantidad_final: nextQuantity,
+    origen_tipo: options.originType || null,
+    origen_id: options.originId ? String(options.originId) : null,
+    responsable: options.responsable || null,
+    id_suscrito: options.id_suscrito || null,
+    fecha_creacion: utilitys_.getCurrentTimestamp()
+  });
   return Stock.findOne({ where: { id: stock.id } });
 }
 

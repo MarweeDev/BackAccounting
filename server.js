@@ -37,6 +37,11 @@ app.use("/appdomain/api/", endpointsRoutes.componentPermission);
 app.use("/appdomain/api/", endpointsRoutes.accessControl);
 app.use("/appdomain/api/", endpointsRoutes.peripheral);
 app.use("/appdomain/api/", endpointsRoutes.paymentMethod);
+app.use("/appdomain/api/", endpointsRoutes.tax);
+app.use("/appdomain/api/", endpointsRoutes.inventoryMovement);
+app.use("/appdomain/api/", endpointsRoutes.cashShift);
+app.use("/appdomain/api/", endpointsRoutes.reports);
+app.use("/appdomain/api/", endpointsRoutes.internalDocument);
 // Endpoint para servir archivos estáticos (imágenes)
 app.use('/uploads', express.static('uploads'));
 
