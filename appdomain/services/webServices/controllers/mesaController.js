@@ -8,7 +8,6 @@ const mesaController = {
     try {
       //const { rows } = await dbServiceQuery.query(Constants.ServicesMethod.GetMesaKeyOrder, [estadoMesaId]);
       const rows = await runQuery(Constants.ServicesMethod.GetMesaKeyOrder);
-      console.log('Rows result: ', rows)
       // Verificar si hay resultados
       if (rows.length == 0) {
         return res.status(400).json({ message: 'Todas están en uso por alguna orden activa' });

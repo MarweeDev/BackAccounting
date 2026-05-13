@@ -5,15 +5,14 @@ const env = process.env.NODE_ENV || 'development';
 const envConfig = config[env];
 
 const sequelize = new Sequelize(
-  envConfig.database,
-  envConfig.username || process.env.POSTGRES_USER_DEV,
-  envConfig.password || process.env.POSTGRES_PASSWORD_DEV,
+  process.env.POSTGRES_DB || envConfig.database,
+  process.env.POSTGRES_USER || process.env.POSTGRES_USER_DEV || envConfig.username,
+  process.env.POSTGRES_PASSWORD || process.env.POSTGRES_PASSWORD_DEV || envConfig.password,
   {
-    host: envConfig.host,
+    host: process.env.DB_HOST || envConfig.host,
+    port: Number(process.env.DB_PORT || envConfig.dbPort || 5432),
     dialect: envConfig.dialect
-  },
-  envConfig.port,
-  envConfig.jwtSecret || process.env.JWT_SECRET
+  }
 );
 
 async function runRawQuery(sqlQuery, params) {

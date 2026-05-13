@@ -77,6 +77,7 @@ class Constants {
         sum(pr.precio * odd.cantidad) as Valor_forma_de_pago,
         ti.referencia as Codigo_forma_de_pago,
         ti.nombre as Descripcion_forma_de_pago,
+        es.nombre as Estado_orden,
         TO_CHAR(od.fecha_creacion, 'DD-MM-YYYY HH24:MI:SS') as Fecha_de_elaboracion
       from orden od
       inner join cliente cl on od.id_client = cl.id
@@ -85,6 +86,7 @@ class Constants {
       inner join usuarios us on od.id_usuario = us.id
       inner join suscritos su on us.id_suscrito = su.id
       inner join tipopago ti on od.id_tipopago = ti.id
+      inner join estado es on od.id_estadoorden = es.id
       where
         TO_CHAR(od.fecha_creacion, 'YYYY-MM-DD') BETWEEN ? AND ?
       GROUP BY 
@@ -98,8 +100,10 @@ class Constants {
         odd.cantidad, 
         pr.precio, 
         ti.referencia, 
-        ti.nombre, 
-        od.fecha_creacion;
+        ti.nombre,
+        es.nombre,
+        od.fecha_creacion
+      ORDER BY od.fecha_creacion asc;
       `,
       GetOrderID: 
       `
@@ -107,10 +111,12 @@ class Constants {
         od.codigo,
         es.nombre as estado,
         us.usuario,
+        pr.id as id_producto,
         pr.nombre as producto,
         pr.precio,
         odd.cantidad,
         cp.nombre as categoria,
+        cl.id as id_cliente,
         cl.nombre as cliente,
         TO_CHAR(od.fecha_creacion, 'DD-MM-YYYY HH24:MI:SS') AS fecha
       FROM 
@@ -126,12 +132,26 @@ class Constants {
       GetLogin:
       `
       select
-        au.token_publico as token
+        au.token_publico as token,
+        usu.id_pais
       from usuarios usu
         inner join suscritos sus on usu.id_suscrito = sus.id
         inner join authorizationtoken au on usu.id = au.id_usuario
       where
         (usu.usuario = ? or sus.correo = ?) and usu.contrasena = ?
+      `,
+      GetLoginUser:
+      `
+      select
+        au.token_publico as token,
+        usu.id_pais,
+        usu.id as id_usuario,
+        usu.contrasena as password
+      from usuarios usu
+        inner join suscritos sus on usu.id_suscrito = sus.id
+        left join authorizationtoken au on usu.id = au.id_usuario
+      where
+        (usu.usuario = ? or sus.correo = ?)
       `,
       GetInfoUser:
       `
@@ -143,14 +163,20 @@ class Constants {
         m.id as id_modulo,
         m.modulo,
         m.ruta,
-        m.icono
+        m.icono,
+        s.imagen,
+        s.responsable as empresa,
+        s.codigo as codigo_empresa,
+        s.nit as nit_empresa
       from usuarios usu
         inner join rol r on usu.id_rol = r.id
         inner join rol_modulo rm on r.id = rm.id_rol
         inner join modulo m on rm.id_modulo = m.id
         inner join authorizationtoken au on usu.id = au.id_usuario
+        inner join suscritos s on usu.id_suscrito = s.id
       where
         au.token_publico = ?
+        and rm.id_estado = 1
       order by m.position_module asc
       `
     };

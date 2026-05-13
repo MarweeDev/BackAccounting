@@ -1,9 +1,28 @@
-const ModelDTO = require('../../infrastructure/models/source/orderDTO');
-const ModelDetailDTO = require('../../infrastructure/models/source/DetailOrderDto');
-const runQuery = require('../../infrastructure/config/poolbase');
-const Constants = require('../../infrastructure/resources/ConstantsQuery');
-const utilitys = require('../../utility/utilitys');
+const ModelDTO = require('../../../infrastructure/models/source/orderDTO');
+const ModelDetailDTO = require('../../../infrastructure/models/source/detailOrderDTO');
+const Product = require('../../../infrastructure/models/source/productDTO');
+const { changeProductStock } = require('./stockController');
+const runQuery = require('../../../infrastructure/config/poolbase');
+const Constants = require('../../../infrastructure/resources/ConstantsQuery');
+const utilitys = require('../../../utility/utilitys');
+
 const utilitys_ = new utilitys();
+
+async function discountPaidOrderStock(codigo) {
+  const details = await ModelDetailDTO.findAll({ where: { codigo_orden: codigo } });
+  const negativeItems = [];
+
+  await Promise.all(details.map(async detail => {
+    const updatedStock = await changeProductStock(detail.id_producto, Number(detail.cantidad || 0) * -1);
+
+    if (updatedStock && Number(updatedStock.cantidad) < 0) {
+      const product = await Product.findOne({ where: { id: detail.id_producto } });
+      negativeItems.push(product?.nombre || `Producto ${detail.id_producto}`);
+    }
+  }));
+
+  return negativeItems;
+}
 
 const orderController = {
   
@@ -20,7 +39,6 @@ const orderController = {
   getAll: async (req, res) => {
     try {
       const rows = await runQuery(Constants.ServicesMethod.GetOrderAll);
-      console.log('Rows result: ', rows)
       // Verificar si hay resultados
       if (rows.length == 0) {
         return res.status(400).json({ message: 'Todas están en uso por alguna orden activa' });
@@ -38,7 +56,6 @@ const orderController = {
 
     try {
       const rows = await runQuery(Constants.ServicesMethod.GetOrderFind, [Number.parseInt(id_estadoorden), Number.parseInt(id_estadoorden), fecha_creacion]);
-      console.log('Rows result: ', rows)
       // Verificar si hay resultados
       if (rows.length == 0) {
         return res.status(200).json({ message: 'No se encontro ninguna relación de orden' });
@@ -56,7 +73,6 @@ const orderController = {
 
     try {
       const rows = await runQuery(Constants.ServicesMethod.GetOrderID, [codigo.toString()]);
-      console.log('Rows result: ', rows)
       // Verificar si hay resultados
       if (rows.length == 0) {
         return res.status(400).json({ message: 'No se encontro ninguna relación de orden' });
@@ -73,9 +89,7 @@ const orderController = {
     const { fecha_init, fecha_fin } = req.query;
 
     try {
-      console.log('parameters: ', fecha_init,fecha_fin)
       const rows = await runQuery(Constants.ServicesMethod.GetOrderFindExport, [fecha_init, fecha_fin]);
-      console.log('Rows result: ', rows)
       // Verificar si hay resultados
       if (rows.length == 0) {
         return res.status(200).json({ message: 'No se encontro ninguna relación de orden' });
@@ -92,8 +106,7 @@ const orderController = {
     try {
       const existingOrders = await ModelDTO.findAll({
         attributes: ['codigo'],
-        group: ['codigo'],
-        logging: console.log
+        group: ['codigo']
       });
 
       let generateCodigo = utilitys_.getGenerateCodeOrder("FA", existingOrders.length);
@@ -156,28 +169,84 @@ const orderController = {
     }
   },
 
-  update: async (req, res) => {
-    const Id = req.params.id;
-    const { id_mesa } = req.body;
+  updateNull: async (req, res) => {
+    const { codigo, observacion } = req.body;
 
     try {
-      const result = await ModelDTO.findOne({ where: { id: Id } });
+      const result = await ModelDTO.findOne({ where: { codigo: codigo } });
+
+      if (!result) {
+        return res.status(404).json({ message: 'Orden no encontrada' });
+      }
+
+      await ModelDTO.update(
+        {
+          observacion : observacion,
+          id_estadoorden : 9
+        },
+        { where: { codigo: codigo } }
+      );
+
+      res.json({ message: 'Orden anulada exitosamente' });
+    } catch (error) {
+      console.error('Error al anular orden', error);
+      res.status(500).json({ message: 'Error al anular orden' });
+    }
+  },
+
+  update: async (req, res) => {
+    const ordersList = req.body;
+
+    try {
+      const result = await ModelDTO.findOne({ where: { codigo: ordersList[0].codigo } });
 
       if (!result) {
         return res.status(404).json({ message: 'Orden no encontrado' });
       }
 
+      // Actualizar la orden - solo el campo observacion por ahora
       await ModelDTO.update(
         {
-            id_mesa
+          observacion : ordersList[0].observacion
         },
-        { where: { id: Id } }
+        { where: { codigo: ordersList[0].codigo } }
       );
 
-      res.json({ message: 'Orden actualizado exitosamente' });
+      // Actualizar el detalle de la orden - solo el campo cantidad por ahora
+      await Promise.all(ordersList.map(async (orderD) => {
+        // Verificar si el producto ya existe en el detalle de la orden
+        const existProduct = await ModelDetailDTO.findOne({
+          where: 
+            { 
+              id_producto: orderD.detalle.id_producto, 
+              codigo_orden: orderD.detalle.codigo_orden 
+            }
+        });
+
+        // Si existe, actualizar la cantidad, si no, crear un nuevo registro
+        if (existProduct) {
+          // Actualizar la cantidad del producto existente
+          await ModelDetailDTO.update(
+          {
+            cantidad: orderD.detalle.cantidad
+          },
+          { where: 
+            { 
+              id_producto: orderD.detalle.id_producto
+            } 
+          });
+        }
+        else {
+          // Crear un nuevo registro en el detalle de la orden
+          await ModelDetailDTO.create(orderD.detalle);
+        }
+        
+      }));
+
+      res.json({ message: 'Orden actualizada exitosamente'});
     } catch (error) {
       console.error('Error al actualizar orden', error);
-      res.status(500).json({ message: 'Error al actualizar orden' });
+      res.status(500).json({ message: 'Error al actualizar orden'});
     }
   },
 
@@ -204,11 +273,23 @@ const orderController = {
         status = 9; //Cancelada
       }
 
+      const shouldDiscountStock = Number(result.id_estadoorden) !== 8 && status === 8;
+      const negativeItems = shouldDiscountStock
+        ? await discountPaidOrderStock(codigo)
+        : [];
+      const stockObservation = negativeItems.length > 0
+        ? `Stock insuficiente registrado para: ${[...new Set(negativeItems)].join(', ')}.`
+        : '';
+      const nextObservation = stockObservation
+        ? [result.observacion, stockObservation].filter(Boolean).join(' ')
+        : result.observacion;
+
       await ModelDTO.update(
         {
             id_tipopago : id_tipopago,
             id_subtipopago : id_subtipopago,
-            id_estadoorden : status
+            id_estadoorden : status,
+            observacion: nextObservation
         },
         { where: { codigo: codigo } }
       );

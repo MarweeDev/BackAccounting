@@ -1,135 +1,183 @@
-const ModelDTO = require('../../../infrastructure/models/source/shoppingDTO');
-const ModelDTO = require('../../../infrastructure/models/source/shoppingDTO');
-const runQuery = require('../../../infrastructure/config/poolbase');
-const Constants = require('../../../infrastructure/resources/ConstantsQuery');
+const Shopping = require('../../../infrastructure/models/source/shoppingDTO');
+const DetailShopping = require('../../../infrastructure/models/source/detailShoppingDTO');
+const Supplier = require('../../../infrastructure/models/source/supplierDTO');
+const Product = require('../../../infrastructure/models/source/productDTO');
+const { changeProductStock } = require('./stockController');
 const utilitys = require('../../../utility/utilitys');
 const utilitys_ = new utilitys();
 
+async function applyShoppingStock(items, direction = 1) {
+  await Promise.all(items.map(item => {
+    const quantity = Number(item.cantidad || 0) * direction;
+    return changeProductStock(item.id_producto, quantity);
+  }));
+}
+
+async function buildShoppingResponse(shopping) {
+  const provider = await Supplier.findOne({ where: { id: shopping.id_proveedor } });
+  const details = await DetailShopping.findAll({ where: { id_compra: shopping.id } });
+
+  const productIds = details.map(item => item.id_producto);
+  const products = productIds.length > 0
+    ? await Product.findAll({ where: { id: productIds } })
+    : [];
+
+  const items = details.map(detail => {
+    const product = products.find(row => row.id === detail.id_producto);
+    return {
+      id: detail.id,
+      id_producto: detail.id_producto,
+      producto: product?.nombre,
+      cantidad: detail.cantidad,
+      valor_unitario: detail.valor_unitario,
+      total: Number(detail.cantidad) * Number(detail.valor_unitario)
+    };
+  });
+
+  return {
+    id: shopping.id,
+    codigo: shopping.codigo,
+    total_compra: shopping.total_compra,
+    id_proveedor: shopping.id_proveedor,
+    proveedor: provider?.proveedor,
+    nit: provider?.nit,
+    id_estado: shopping.id_estado,
+    fecha_creacion: shopping.fecha_creacion,
+    items
+  };
+}
+
 const shoppingController = {
-  
   get: async (req, res) => {
     try {
-      const result = await ModelDTO.findAll({where: {id_estadoorden : 7}});
+      const rows = await Shopping.findAll({ order: [['id', 'DESC']] });
+      const result = await Promise.all(rows.map(buildShoppingResponse));
       res.json({ result });
     } catch (error) {
-      console.error('Error al obtener orden de  compra:', error);
-      res.status(500).json({ message: 'Error al obtener orden de  compra' });
+      console.error('Error al obtener compras:', error);
+      res.status(500).json({ message: 'Error al obtener compras' });
     }
   },
 
   getById: async (req, res) => {
-    const codigo = req.params.id;
-
     try {
-      const rows = await runQuery(Constants.ServicesMethod.GetOrderID, [codigo.toString()]);
-      console.log('Rows result: ', rows)
-      // Verificar si hay resultados
-      if (rows.length == 0) {
-        return res.status(400).json({ message: 'No se encontro ninguna relación de orden' });
+      const shopping = await Shopping.findOne({ where: { id: req.params.id } });
+
+      if (!shopping) {
+        return res.status(404).json({ message: 'Compra no encontrada' });
       }
 
-      res.json({ result: rows });
+      const result = await buildShoppingResponse(shopping);
+      res.json({ result });
     } catch (error) {
-      console.error('Error al obtener orden por ID:', error);
-      res.status(500).json({ message: 'Error al obtener orden por ID' });
-    }
-  },
-
-  getCodeOrder: async (req, res) =>{
-    try {
-      const existingOrders = await ModelDTO.findAll({
-        attributes: ['codigo'],
-        group: ['codigo']
-      });
-      let generateCodigo = utilitys_.getGenerateCodeOrder(existingOrders.length);
-
-      const existing = await ModelDTO.findOne({ where: { codigo : generateCodigo } });
-      if (existing) {
-        return res.json({message: "Código orden", status: generateCodigo + "r"});
-      }
-      else {
-        return res.json({message: "Código orden", status: generateCodigo});
-      }
-    } catch (error) {
-      console.error('Error al obtener orden:', error);
-      res.status(500).json({ message: 'Error al obtener orden', status : error });
+      console.error('Error al obtener compra:', error);
+      res.status(500).json({ message: 'Error al obtener compra' });
     }
   },
 
   post: async (req, res) => {
-    const { numero, nombre, capacidad } = req.body;
+    const { codigo, id_proveedor, items } = req.body;
+    const detailItems = Array.isArray(items) ? items : [];
 
     try {
-    const existing = await ModelDTO.findOne({ where: { numero, nombre } });
-      if (existing) {
-        return res.status(400).json({ message: 'El mesa ya existe' });
+      if (!id_proveedor || detailItems.length === 0) {
+        return res.status(400).json({ message: 'La compra debe tener proveedor y al menos un item' });
       }
 
-      const result = await ModelDTO.create({
-        numero,
-        nombre,
-        capacidad,
-        estado_mesa : 4,
-        id_estado : 7
+      const fecha = utilitys_.getCurrentTimestamp();
+      const total = detailItems.reduce((sum, item) => {
+        return sum + (Number(item.cantidad || 0) * Number(item.valor_unitario || 0));
+      }, 0);
+
+      const shopping = await Shopping.create({
+        codigo: codigo || `FC-${Date.now()}`,
+        total_compra: total,
+        id_proveedor,
+        id_estado: 1,
+        fecha_creacion: fecha
       });
 
-      res.json({ message: 'mesa registrado exitosamente', status: 200, response: result });
+      await Promise.all(detailItems.map(item => DetailShopping.create({
+        id_compra: shopping.id,
+        id_producto: item.id_producto,
+        cantidad: item.cantidad,
+        valor_unitario: item.valor_unitario,
+        fecha_creacion: fecha
+      })));
+
+      await applyShoppingStock(detailItems, 1);
+
+      const result = await buildShoppingResponse(shopping);
+      res.json({ message: 'Compra registrada exitosamente', result });
     } catch (error) {
-      console.error('Error al registrar mesa:', error);
-      res.status(500).json({ message: 'Error al registrar mesa' });
+      console.error('Error al registrar compra:', error);
+      res.status(500).json({ message: 'Error al registrar compra' });
     }
   },
 
   update: async (req, res) => {
-    const Id = req.params.id;
-    const { id_mesa } = req.body;
+    const { codigo, id_proveedor, items } = req.body;
+    const detailItems = Array.isArray(items) ? items : [];
 
     try {
-      const result = await ModelDTO.findOne({ where: { id: Id } });
+      const shopping = await Shopping.findOne({ where: { id: req.params.id } });
 
-      if (!result) {
-        return res.status(404).json({ message: 'Orden no encontrado' });
+      if (!shopping) {
+        return res.status(404).json({ message: 'Compra no encontrada' });
       }
 
-      await ModelDTO.update(
-        {
-            id_mesa
-        },
-        { where: { id: Id } }
+      const previousItems = await DetailShopping.findAll({ where: { id_compra: req.params.id } });
+      const total = detailItems.reduce((sum, item) => {
+        return sum + (Number(item.cantidad || 0) * Number(item.valor_unitario || 0));
+      }, 0);
+
+      await Shopping.update(
+        { codigo, id_proveedor, total_compra: total },
+        { where: { id: req.params.id } }
       );
 
-      res.json({ message: 'Orden actualizado exitosamente' });
+      await applyShoppingStock(previousItems, -1);
+      await DetailShopping.destroy({ where: { id_compra: req.params.id } });
+      await Promise.all(detailItems.map(item => DetailShopping.create({
+        id_compra: req.params.id,
+        id_producto: item.id_producto,
+        cantidad: item.cantidad,
+        valor_unitario: item.valor_unitario,
+        fecha_creacion: utilitys_.getCurrentTimestamp()
+      })));
+      await applyShoppingStock(detailItems, 1);
+
+      const updated = await Shopping.findOne({ where: { id: req.params.id } });
+      const result = await buildShoppingResponse(updated);
+      res.json({ message: 'Compra actualizada exitosamente', result });
     } catch (error) {
-      console.error('Error al actualizar orden', error);
-      res.status(500).json({ message: 'Error al actualizar orden' });
+      console.error('Error al actualizar compra:', error);
+      res.status(500).json({ message: 'Error al actualizar compra' });
     }
   },
 
   delete: async (req, res) => {
-    const Id = req.params.id;
-
     try {
-      const result = await ModelDTO.findOne({ where: { id: Id } });
+      const shopping = await Shopping.findOne({ where: { id: req.params.id } });
 
-      if (!result) {
-        return res.status(404).json({ message: 'Orden no encontrado' });
+      if (!shopping) {
+        return res.status(404).json({ message: 'Compra no encontrada' });
       }
 
-      await ModelDTO.update(
-        {
-          id_estado: 9
-        },
-        { where: { id: Id } }
-      );
+      if (Number(shopping.id_estado) === 1) {
+        const detailItems = await DetailShopping.findAll({ where: { id_compra: req.params.id } });
+        await applyShoppingStock(detailItems, -1);
+      }
 
-      res.json({ message: 'Orden actualizado exitosamente' });
+      await Shopping.update({ id_estado: 2 }, { where: { id: req.params.id } });
+      res.json({ message: 'Compra anulada exitosamente' });
     } catch (error) {
-      console.error('Error al actualizar orden', error);
-      res.status(500).json({ message: 'Error al actualizar orden' });
+      console.error('Error al anular compra:', error);
+      res.status(500).json({ message: 'Error al anular compra' });
     }
   }
 };
 
 module.exports = {
-    shoppingController
+  shoppingController
 };

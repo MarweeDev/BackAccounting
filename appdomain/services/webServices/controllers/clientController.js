@@ -17,7 +17,6 @@ const clientController = {
 
     try {
       const existing = await ModelDTO.findOne({ where: { nit : nit, id_estado : 1 } });
-      console.log(existing);
       if (existing) {
         return res.status(400).json({ message: 'El cliente ya existe:' });
       }

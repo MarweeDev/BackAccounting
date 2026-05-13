@@ -11,7 +11,7 @@ const ProductDto = sequelize.define('producto', {
     allowNull: true,
   },
   precio: {
-    type: DataTypes.NUMBER,
+    type: DataTypes.DECIMAL(10, 2),
     allowNull: false,
   },
   id_categoria: {
@@ -22,6 +22,14 @@ const ProductDto = sequelize.define('producto', {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
+  referencia: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  image: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  }
 }, {
   tableName: 'producto',
   timestamps: false,

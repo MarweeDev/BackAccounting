@@ -41,7 +41,7 @@ const productController = {
   },
 
   post: async (req, res) => {
-    const { nombre, descripcion, precio, id_categoria } = req.body;
+    const { nombre, descripcion, precio, id_categoria, referencia } = req.body;
 
     try {
     const existing = await Product.findOne({ where: { nombre, id_categoria } });
@@ -49,12 +49,18 @@ const productController = {
         return res.status(400).json({ message: 'El producto ya existe' });
       }
 
+      const imagePath = req.file
+      ? `${req.protocol}://${req.get('host')}/uploads/products/${req.file.filename}`
+      : null;
+
       const newProduct = await Product.create({
         nombre,
         descripcion,
         precio,
         id_categoria,
-        id_estado : 1
+        referencia,
+        id_estado : 1,
+        image: imagePath
       });
 
       res.json({ message: 'producto registrado exitosamente', status: newProduct });
@@ -66,7 +72,7 @@ const productController = {
 
   update: async (req, res) => {
     const Id = req.params.id;
-    const { nombre, descripcion, precio, id_categoria } = req.body;
+    const { nombre, descripcion, precio, id_categoria, referencia } = req.body;
 
     try {
       const product = await Product.findOne({ where: { id: Id } });
@@ -75,12 +81,18 @@ const productController = {
         return res.status(404).json({ message: 'Producto no encontrado' });
       }
 
+      const imagePath = req.file
+      ? `${req.protocol}://${req.get('host')}/uploads/products/${req.file.filename}`
+      : product.image;
+
       await Product.update(
         {
             nombre,
             descripcion,
             precio,
-            id_categoria
+            referencia,
+            id_categoria,
+            image: imagePath
         },
         { where: { id: Id } }
       );
